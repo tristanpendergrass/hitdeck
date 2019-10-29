@@ -1,11 +1,9 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
-import Array exposing (Array, fromList)
 import Browser
-import Html exposing (Html, button, div, h1, hr, li, text, ul)
+import Html exposing (Html, button, div, hr, li, text, ul)
 import Html.Events exposing (onClick)
 import List.Extra
-import Maybe
 import Random
 import Random.List exposing (shuffle)
 import Task
@@ -47,11 +45,15 @@ type CardType
 
 
 type alias Card =
-    { id : Id, cardType : CardType }
+    { id : Id
+    , cardType : CardType
+    }
 
 
 type alias Pile =
-    { id : Id, cards : List Card }
+    { id : Id
+    , cards : List Card
+    }
 
 
 type EditState
@@ -60,7 +62,11 @@ type EditState
 
 
 type alias Mat =
-    { id : Id, deck : Pile, discard : Pile, editState : EditState }
+    { id : Id
+    , deck : Pile
+    , discard : Pile
+    , editState : EditState
+    }
 
 
 type alias Model =
@@ -154,7 +160,7 @@ update msg model =
                 newMats =
                     replace mat newMat model.mats
             in
-            ( { model | mats = newMats }, Cmd.none )
+            ( { model | mats = newMats, seed = newSeed }, Cmd.none )
 
         Draw mat ->
             case mat.deck.cards of
