@@ -2,6 +2,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
 import Html exposing (Html, button, div, hr, li, text, ul)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import List.Extra
 import Random
@@ -359,7 +360,7 @@ renderMat mat =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ class "root" ]
         [ button [ onClick AddMat ] [ text "Add Mat" ]
         , hr [] []
         , div []
