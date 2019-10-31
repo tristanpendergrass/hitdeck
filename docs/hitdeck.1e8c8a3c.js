@@ -3,4 +3,4 @@ parcelRequire=function(e,r,t,n){var i,o="function"==typeof parcelRequire&&parcel
 },{}],"Focm":[function(require,module,exports) {
 "use strict";var e=require("./src/Main.elm");e.Elm.Main.init({node:document.querySelector("main")});
 },{"./src/Main.elm":"oS9F"}]},{},["Focm"], null)
-//# sourceMappingURL=docs/hitdeck.1e8c8a3c.js.map
+//# sourceMappingURL=http://tristanpendergrass.com/hitdeck/hitdeck.1e8c8a3c.js.map
