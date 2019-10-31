@@ -80,21 +80,9 @@ type alias Model =
 
 defaultMat : Mat
 defaultMat =
-    { id = 2
-    , deck =
-        { id = 10
-        , cards =
-            [ { id = 11, cardType = Zero }
-            , { id = 12, cardType = One }
-            , { id = 13, cardType = MinusOne }
-            , { id = 14, cardType = Two }
-            , { id = 15, cardType = MinusTwo }
-            , { id = 16, cardType = Crit }
-            , { id = 17, cardType = Null }
-            , { id = 18, cardType = Zero }
-            ]
-        }
-    , discard = { id = 20, cards = [] }
+    { id = 1
+    , deck = { id = 2, cards = [] }
+    , discard = { id = 3, cards = [] }
     , editState = Default
     }
 
@@ -102,7 +90,7 @@ defaultMat =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { mats = [ defaultMat ]
-      , nonce = 41
+      , nonce = 4
       , seed = Random.initialSeed 0
       }
     , Task.perform GenerateSeed Time.now
