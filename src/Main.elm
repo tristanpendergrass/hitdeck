@@ -338,7 +338,10 @@ renderMat mat =
             , renderAddCard mat Crit
             , renderAddCard mat Null
             ]
-        , div [] [ button [ onClick (Draw mat) ] [ text "Draw" ], button [ onClick (Reshuffle mat) ] [ text "Reshuffle" ] ]
+        , div []
+            [ button [ onClick (Draw mat) ] [ text "Draw" ]
+            , button [ onClick (Reshuffle mat) ] [ text "Reshuffle" ]
+            ]
         , div [] [ text "Deck:" ]
         , ul [] (List.map (cardRow mat) mat.deck.cards)
         , div [] [ text "Drawn cards:" ]
