@@ -36,6 +36,10 @@ type alias Id =
     Int
 
 
+type alias Nonce =
+    Int
+
+
 type CardType
     = Zero
     | One
@@ -73,9 +77,23 @@ type alias Mat =
 
 type alias Model =
     { mats : List Mat
-    , nonce : Int -- Number to be used and then incremented when assigning new ids
+    , nonce : Nonce
     , seed : Random.Seed
     }
+
+
+makeDefaultCards : Nonce -> ( Nonce, List Card )
+makeDefaultCards nonce =
+    ( nonce + 7
+    , [ Card (nonce + 0) Zero
+      , Card (nonce + 1) One
+      , Card (nonce + 2) MinusOne
+      , Card (nonce + 3) Two
+      , Card (nonce + 4) MinusTwo
+      , Card (nonce + 5) Crit
+      , Card (nonce + 6) Null
+      ]
+    )
 
 
 defaultMat : Mat
@@ -83,7 +101,7 @@ defaultMat =
     { id = 1
     , deck = { id = 2, cards = [] }
     , discard = { id = 3, cards = [] }
-    , editState = Default
+    , editState = Editing
     }
 
 
@@ -103,12 +121,15 @@ init _ =
 
 type Msg
     = GenerateSeed Time.Posix
+    | AddMat
+      -- mat operations
     | Reshuffle Mat
     | Draw Mat
     | AddCard Mat CardType
     | RemoveCard Pile Mat Card
     | ToggleMatEdit Mat
-    | AddMat
+    | AddDefaultCards Mat
+    | RemoveAllCards Mat
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -116,6 +137,18 @@ update msg model =
     case msg of
         GenerateSeed time ->
             ( { model | seed = Random.initialSeed (Time.posixToMillis time) }, Cmd.none )
+
+        AddMat ->
+            let
+                newMat : Mat
+                newMat =
+                    { id = model.nonce
+                    , deck = { id = model.nonce + 1, cards = [] }
+                    , discard = { id = model.nonce + 2, cards = [] }
+                    , editState = Default
+                    }
+            in
+            ( { model | mats = newMat :: model.mats, nonce = model.nonce + 3 }, Cmd.none )
 
         Reshuffle mat ->
             let
@@ -243,17 +276,47 @@ update msg model =
             in
             ( { model | mats = newMats }, Cmd.none )
 
-        AddMat ->
+        AddDefaultCards mat ->
             let
+                oldDeck : Pile
+                oldDeck =
+                    mat.deck
+
+                ( newNonce, defaultCards ) =
+                    makeDefaultCards model.nonce
+
+                newDeck : Pile
+                newDeck =
+                    { oldDeck | cards = List.concat [ defaultCards, oldDeck.cards ] }
+
+                newMats : List Mat
+                newMats =
+                    replace mat { mat | deck = newDeck } model.mats
+            in
+            ( { model | nonce = newNonce, mats = newMats }, Cmd.none )
+
+        RemoveAllCards mat ->
+            let
+                oldDeck : Pile
+                oldDeck =
+                    mat.deck
+
+                oldDiscard : Pile
+                oldDiscard =
+                    mat.discard
+
                 newMat : Mat
                 newMat =
-                    { id = model.nonce
-                    , deck = { id = model.nonce + 1, cards = [] }
-                    , discard = { id = model.nonce + 2, cards = [] }
-                    , editState = Default
+                    { mat
+                        | deck = { oldDeck | cards = [] }
+                        , discard = { oldDiscard | cards = [] }
                     }
+
+                newMats : List Mat
+                newMats =
+                    replace mat newMat model.mats
             in
-            ( { model | mats = newMat :: model.mats, nonce = model.nonce + 3 }, Cmd.none )
+            ( { model | mats = newMats }, Cmd.none )
 
 
 
@@ -350,6 +413,9 @@ renderMat mat =
             , renderAddCard mat MinusTwo
             , renderAddCard mat Crit
             , renderAddCard mat Null
+            , text "|"
+            , button [ onClick (AddDefaultCards mat) ] [ text "Add Default Cards" ]
+            , button [ onClick (RemoveAllCards mat) ] [ text "Remove All Cards" ]
             ]
         , div []
             [ button [ onClick (Draw mat) ] [ text "Draw" ]
