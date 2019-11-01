@@ -7,6 +7,6 @@
   },
   "scripts": {
     "start": "parcel src/index.html",
-    "deploy": "parcel build src/index.html --out-dir docs --public-url http://tristanpendergrass.com/hitdeck/"
+    "deploy": "parcel build src/index.html --out-dir docs --public-url https://tristanpendergrass.com/hitdeck/"
   }
 }
