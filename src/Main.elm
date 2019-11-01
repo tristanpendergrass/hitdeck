@@ -2,7 +2,7 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
 import Html exposing (Html, button, div, hr, li, text, ul)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import List.Extra
 import Random
@@ -271,27 +271,40 @@ subscriptions _ =
 
 cardRow : Mat -> Card -> Html Msg
 cardRow mat card =
-    case card.cardType of
-        Zero ->
-            li [] [ button [ onClick (RemoveCard mat.deck mat card) ] [ text "-" ], text "Zero" ]
+    let
+        removeButton : Html Msg
+        removeButton =
+            button
+                [ onClick (RemoveCard mat.deck mat card)
+                , classList [ ( "invisible", mat.editState /= Editing ) ]
+                ]
+                [ text "-" ]
 
-        One ->
-            li [] [ button [ onClick (RemoveCard mat.deck mat card) ] [ text "-" ], text "One" ]
+        label : String
+        label =
+            case card.cardType of
+                Zero ->
+                    "Zero"
 
-        MinusOne ->
-            li [] [ button [ onClick (RemoveCard mat.deck mat card) ] [ text "-" ], text "MinusOne" ]
+                One ->
+                    "One"
 
-        Two ->
-            li [] [ button [ onClick (RemoveCard mat.deck mat card) ] [ text "-" ], text "Two" ]
+                MinusOne ->
+                    "MinusOne"
 
-        MinusTwo ->
-            li [] [ button [ onClick (RemoveCard mat.deck mat card) ] [ text "-" ], text "MinusTwo" ]
+                Two ->
+                    "Two"
 
-        Crit ->
-            li [] [ button [ onClick (RemoveCard mat.deck mat card) ] [ text "-" ], text "Crit" ]
+                MinusTwo ->
+                    "MinusTwo"
 
-        Null ->
-            li [] [ button [ onClick (RemoveCard mat.deck mat card) ] [ text "-" ], text "Null" ]
+                Crit ->
+                    "Crit"
+
+                Null ->
+                    "Null"
+    in
+    li [] [ removeButton, text label ]
 
 
 renderAddCard : Mat -> CardType -> Html Msg
@@ -329,7 +342,7 @@ renderMat mat =
     div []
         [ div []
             [ button [ onClick (ToggleMatEdit mat) ] [ text "Toggle Editing" ] ]
-        , div []
+        , div [ classList [ ( "invisible", mat.editState /= Editing ) ] ]
             [ renderAddCard mat Zero
             , renderAddCard mat One
             , renderAddCard mat MinusOne

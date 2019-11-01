@@ -6459,6 +6459,25 @@ var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$li = _VirtualDom_node('li');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$html$Html$Attributes$classList = function (classes) {
+	return elm$html$Html$Attributes$class(
+		A2(
+			elm$core$String$join,
+			' ',
+			A2(
+				elm$core$List$map,
+				elm$core$Tuple$first,
+				A2(elm$core$List$filter, elm$core$Tuple$second, classes))));
+};
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6478,142 +6497,51 @@ var elm$html$Html$Events$onClick = function (msg) {
 };
 var author$project$Main$cardRow = F2(
 	function (mat, card) {
-		var _n0 = card.cardType;
-		switch (_n0.$) {
-			case 'Zero':
-				return A2(
-					elm$html$Html$li,
-					_List_Nil,
+		var removeButton = A2(
+			elm$html$Html$button,
+			_List_fromArray(
+				[
+					elm$html$Html$Events$onClick(
+					A3(author$project$Main$RemoveCard, mat.deck, mat, card)),
+					elm$html$Html$Attributes$classList(
 					_List_fromArray(
 						[
-							A2(
-							elm$html$Html$button,
-							_List_fromArray(
-								[
-									elm$html$Html$Events$onClick(
-									A3(author$project$Main$RemoveCard, mat.deck, mat, card))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text('-')
-								])),
-							elm$html$Html$text('Zero')
-						]));
-			case 'One':
-				return A2(
-					elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$button,
-							_List_fromArray(
-								[
-									elm$html$Html$Events$onClick(
-									A3(author$project$Main$RemoveCard, mat.deck, mat, card))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text('-')
-								])),
-							elm$html$Html$text('One')
-						]));
-			case 'MinusOne':
-				return A2(
-					elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$button,
-							_List_fromArray(
-								[
-									elm$html$Html$Events$onClick(
-									A3(author$project$Main$RemoveCard, mat.deck, mat, card))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text('-')
-								])),
-							elm$html$Html$text('MinusOne')
-						]));
-			case 'Two':
-				return A2(
-					elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$button,
-							_List_fromArray(
-								[
-									elm$html$Html$Events$onClick(
-									A3(author$project$Main$RemoveCard, mat.deck, mat, card))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text('-')
-								])),
-							elm$html$Html$text('Two')
-						]));
-			case 'MinusTwo':
-				return A2(
-					elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$button,
-							_List_fromArray(
-								[
-									elm$html$Html$Events$onClick(
-									A3(author$project$Main$RemoveCard, mat.deck, mat, card))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text('-')
-								])),
-							elm$html$Html$text('MinusTwo')
-						]));
-			case 'Crit':
-				return A2(
-					elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$button,
-							_List_fromArray(
-								[
-									elm$html$Html$Events$onClick(
-									A3(author$project$Main$RemoveCard, mat.deck, mat, card))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text('-')
-								])),
-							elm$html$Html$text('Crit')
-						]));
-			default:
-				return A2(
-					elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$button,
-							_List_fromArray(
-								[
-									elm$html$Html$Events$onClick(
-									A3(author$project$Main$RemoveCard, mat.deck, mat, card))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text('-')
-								])),
-							elm$html$Html$text('Null')
-						]));
-		}
+							_Utils_Tuple2(
+							'invisible',
+							!_Utils_eq(mat.editState, author$project$Main$Editing))
+						]))
+				]),
+			_List_fromArray(
+				[
+					elm$html$Html$text('-')
+				]));
+		var label = function () {
+			var _n0 = card.cardType;
+			switch (_n0.$) {
+				case 'Zero':
+					return 'Zero';
+				case 'One':
+					return 'One';
+				case 'MinusOne':
+					return 'MinusOne';
+				case 'Two':
+					return 'Two';
+				case 'MinusTwo':
+					return 'MinusTwo';
+				case 'Crit':
+					return 'Crit';
+				default:
+					return 'Null';
+			}
+		}();
+		return A2(
+			elm$html$Html$li,
+			_List_Nil,
+			_List_fromArray(
+				[
+					removeButton,
+					elm$html$Html$text(label)
+				]));
 	});
 var author$project$Main$AddCard = F2(
 	function (a, b) {
@@ -6679,7 +6607,16 @@ var author$project$Main$renderMat = function (mat) {
 					])),
 				A2(
 				elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2(
+								'invisible',
+								!_Utils_eq(mat.editState, author$project$Main$Editing))
+							]))
+					]),
 				_List_fromArray(
 					[
 						A2(author$project$Main$renderAddCard, mat, author$project$Main$Zero),
@@ -6749,15 +6686,6 @@ var author$project$Main$renderMat = function (mat) {
 				A2(elm$html$Html$hr, _List_Nil, _List_Nil)
 			]));
 };
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			elm$json$Json$Encode$string(string));
-	});
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var author$project$Main$view = function (model) {
 	return A2(
 		elm$html$Html$div,
