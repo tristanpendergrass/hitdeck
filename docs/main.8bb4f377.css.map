@@ -1,0 +1,1 @@
+{"version":3,"sources":["src/main.scss"],"names":[],"mappings":"AAAA,MACE,sBAGF,WACE","file":"main.8bb4f377.css","sourceRoot":"..","sourcesContent":[".root {\n  border: 1px solid black;\n}\n\n.invisible {\n  opacity: 0;\n}"]}
