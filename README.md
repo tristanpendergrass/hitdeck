@@ -1,11 +1,11 @@
 # Development
 
 ```
-$ parcel index.html
+$ npm start
 ```
 
 # Deployment
 
 ```
-$ parcel build index.html --out-dir docs --public-url http://tristanpendergrass.com/hitdeck/
+$ npm run deploy
 ```
