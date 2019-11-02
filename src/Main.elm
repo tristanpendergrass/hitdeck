@@ -1,9 +1,9 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
-import Html exposing (Html, button, div, hr, li, text, ul)
-import Html.Attributes exposing (class, classList)
-import Html.Events exposing (onClick)
+import Html exposing (Html, button, div, hr, input, li, text, ul)
+import Html.Attributes exposing (class, classList, disabled, value)
+import Html.Events exposing (onBlur, onClick, onInput)
 import List.Extra
 import Random
 import Random.List exposing (shuffle)
@@ -71,7 +71,9 @@ type alias Mat =
     { id : Id
     , deck : Pile
     , discard : Pile
-    , editState : EditState
+    , cardEditState : EditState
+    , nameEditState : EditState
+    , name : String
     }
 
 
@@ -126,7 +128,9 @@ defaultMat =
     { id = 1
     , deck = { id = 2, cards = [] }
     , discard = { id = 3, cards = [] }
-    , editState = Editing
+    , cardEditState = Editing
+    , nameEditState = Default
+    , name = "Mat 1"
     }
 
 
@@ -152,9 +156,11 @@ type Msg
     | Draw Mat
     | AddCard Mat CardType
     | RemoveCard Pile Mat Card
-    | ToggleMatEdit Mat
+    | ToggleMatCardEdit Mat
+    | ToggleMatNameEdit Mat
     | AddDefaultCards Mat
     | RemoveAllCards Mat
+    | HandleMatNameInput Mat String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -170,10 +176,12 @@ update msg model =
                     { id = model.nonce
                     , deck = { id = model.nonce + 1, cards = [] }
                     , discard = { id = model.nonce + 2, cards = [] }
-                    , editState = Default
+                    , cardEditState = Default
+                    , nameEditState = Default
+                    , name = "Mat " ++ String.fromInt (List.length model.mats + 1)
                     }
             in
-            ( { model | mats = newMat :: model.mats, nonce = model.nonce + 3 }, Cmd.none )
+            ( { model | mats = model.mats ++ [ newMat ], nonce = model.nonce + 3 }, Cmd.none )
 
         Reshuffle mat ->
             let
@@ -282,13 +290,32 @@ update msg model =
             in
             ( { model | mats = newMats }, Cmd.none )
 
-        ToggleMatEdit mat ->
+        ToggleMatCardEdit mat ->
             let
                 newMat : Mat
                 newMat =
                     { mat
-                        | editState =
-                            if mat.editState == Default then
+                        | cardEditState =
+                            if mat.cardEditState == Default then
+                                Editing
+
+                            else
+                                Default
+                    }
+
+                newMats : List Mat
+                newMats =
+                    replace mat newMat model.mats
+            in
+            ( { model | mats = newMats }, Cmd.none )
+
+        ToggleMatNameEdit mat ->
+            let
+                newMat : Mat
+                newMat =
+                    { mat
+                        | nameEditState =
+                            if mat.nameEditState == Default then
                                 Editing
 
                             else
@@ -343,6 +370,18 @@ update msg model =
             in
             ( { model | mats = newMats }, Cmd.none )
 
+        HandleMatNameInput mat name ->
+            let
+                newMat : Mat
+                newMat =
+                    { mat | name = name }
+
+                newMats : List Mat
+                newMats =
+                    replace mat newMat model.mats
+            in
+            ( { model | mats = newMats }, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -364,7 +403,7 @@ cardRow mat card =
         removeButton =
             button
                 [ onClick (RemoveCard mat.deck mat card)
-                , classList [ ( "invisible", mat.editState /= Editing ) ]
+                , classList [ ( "invisible", mat.cardEditState /= Editing ) ]
                 ]
                 [ text "-" ]
     in
@@ -380,8 +419,23 @@ renderMat : Mat -> Html Msg
 renderMat mat =
     div []
         [ div []
-            [ button [ onClick (ToggleMatEdit mat) ] [ text "Toggle Editing" ] ]
-        , div [ classList [ ( "invisible", mat.editState /= Editing ) ] ]
+            (if mat.nameEditState == Editing then
+                [ input
+                    [ value mat.name
+                    , onInput (HandleMatNameInput mat)
+                    , onBlur (ToggleMatNameEdit mat)
+                    ]
+                    []
+                ]
+
+             else
+                [ text mat.name
+                , button [ onClick (ToggleMatNameEdit mat) ] [ text "Toggle Name Edit" ]
+                ]
+            )
+        , div []
+            [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle Editing" ] ]
+        , div [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ]
             [ renderAddCard mat Zero
             , renderAddCard mat One
             , renderAddCard mat MinusOne
@@ -394,8 +448,8 @@ renderMat mat =
             , button [ onClick (RemoveAllCards mat) ] [ text "Remove All Cards" ]
             ]
         , div []
-            [ button [ onClick (Draw mat) ] [ text "Draw" ]
-            , button [ onClick (Reshuffle mat) ] [ text "Reshuffle" ]
+            [ button [ onClick (Draw mat), disabled (List.isEmpty mat.deck.cards) ] [ text "Draw" ]
+            , button [ onClick (Reshuffle mat), disabled (List.isEmpty mat.discard.cards) ] [ text "Reshuffle" ]
             ]
         , div [] [ text "Deck:" ]
         , ul [] (List.map (cardRow mat) mat.deck.cards)
