@@ -82,6 +82,31 @@ type alias Model =
     }
 
 
+stringForCardType : CardType -> String
+stringForCardType cardType =
+    case cardType of
+        Zero ->
+            "Zero"
+
+        One ->
+            "One"
+
+        MinusOne ->
+            "MinusOne"
+
+        Two ->
+            "Two"
+
+        MinusTwo ->
+            "MinusTwo"
+
+        Crit ->
+            "Crit"
+
+        Null ->
+            "Null"
+
+
 makeDefaultCards : Nonce -> ( Nonce, List Card )
 makeDefaultCards nonce =
     ( nonce + 7
@@ -342,62 +367,13 @@ cardRow mat card =
                 , classList [ ( "invisible", mat.editState /= Editing ) ]
                 ]
                 [ text "-" ]
-
-        label : String
-        label =
-            case card.cardType of
-                Zero ->
-                    "Zero"
-
-                One ->
-                    "One"
-
-                MinusOne ->
-                    "MinusOne"
-
-                Two ->
-                    "Two"
-
-                MinusTwo ->
-                    "MinusTwo"
-
-                Crit ->
-                    "Crit"
-
-                Null ->
-                    "Null"
     in
-    li [] [ removeButton, text label ]
+    li [] [ removeButton, text (stringForCardType card.cardType) ]
 
 
 renderAddCard : Mat -> CardType -> Html Msg
 renderAddCard mat cardType =
-    let
-        label : String
-        label =
-            case cardType of
-                Zero ->
-                    "+Zero"
-
-                One ->
-                    "+One"
-
-                MinusOne ->
-                    "+MinusOne"
-
-                Two ->
-                    "+Two"
-
-                MinusTwo ->
-                    "+MinusTwo"
-
-                Crit ->
-                    "+Crit"
-
-                Null ->
-                    "+Null"
-    in
-    button [ onClick (AddCard mat cardType) ] [ text label ]
+    button [ onClick (AddCard mat cardType) ] [ text ("+" ++ stringForCardType cardType) ]
 
 
 renderMat : Mat -> Html Msg
