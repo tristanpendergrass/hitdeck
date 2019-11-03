@@ -1,8 +1,9 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
+import FeatherIcons
 import Html exposing (Html, button, div, hr, input, li, text, ul)
-import Html.Attributes exposing (class, classList, disabled, value)
+import Html.Attributes exposing (autofocus, class, classList, disabled, value)
 import Html.Events exposing (onBlur, onClick, onInput)
 import List.Extra
 import Random
@@ -424,13 +425,21 @@ renderMat mat =
                     [ value mat.name
                     , onInput (HandleMatNameInput mat)
                     , onBlur (ToggleMatNameEdit mat)
+                    , autofocus True
                     ]
                     []
                 ]
 
              else
                 [ text mat.name
-                , button [ onClick (ToggleMatNameEdit mat) ] [ text "Toggle Name Edit" ]
+                , button
+                    [ onClick (ToggleMatNameEdit mat)
+                    , class "edit-mat-name"
+                    ]
+                    [ FeatherIcons.edit
+                        |> FeatherIcons.withSize 10
+                        |> FeatherIcons.toHtml []
+                    ]
                 ]
             )
         , div []
