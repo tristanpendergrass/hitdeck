@@ -1,9 +1,10 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
+import Browser.Dom
 import FeatherIcons
-import Html exposing (Html, button, div, hr, input, li, text, ul)
-import Html.Attributes exposing (autofocus, class, classList, disabled, value)
+import Html exposing (Html, button, div, hr, input, li, span, text, ul)
+import Html.Attributes exposing (class, classList, disabled, id, value)
 import Html.Events exposing (onBlur, onClick, onInput)
 import List.Extra
 import Random
@@ -27,6 +28,11 @@ replace oldA newA =
             else
                 ax
         )
+
+
+getMatId : Id -> String
+getMatId id =
+    "mat-" ++ String.fromInt id
 
 
 
@@ -150,7 +156,8 @@ init _ =
 
 
 type Msg
-    = GenerateSeed Time.Posix
+    = NoOp
+    | GenerateSeed Time.Posix
     | AddMat
       -- mat operations
     | Reshuffle Mat
@@ -167,6 +174,9 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         GenerateSeed time ->
             ( { model | seed = Random.initialSeed (Time.posixToMillis time) }, Cmd.none )
 
@@ -327,7 +337,7 @@ update msg model =
                 newMats =
                     replace mat newMat model.mats
             in
-            ( { model | mats = newMats }, Cmd.none )
+            ( { model | mats = newMats }, focusMatNameInput mat.id )
 
         AddDefaultCards mat ->
             let
@@ -416,28 +426,31 @@ renderAddCard mat cardType =
     button [ onClick (AddCard mat cardType) ] [ text ("+" ++ stringForCardType cardType) ]
 
 
+focusMatNameInput : Id -> Cmd Msg
+focusMatNameInput id =
+    Task.attempt (\_ -> NoOp) (Browser.Dom.focus <| getMatId id)
+
+
 renderMat : Mat -> Html Msg
 renderMat mat =
     div []
-        [ div []
+        [ div [ class "mat-name" ]
             (if mat.nameEditState == Editing then
                 [ input
                     [ value mat.name
                     , onInput (HandleMatNameInput mat)
                     , onBlur (ToggleMatNameEdit mat)
-                    , autofocus True
+                    , id (getMatId mat.id)
                     ]
                     []
                 ]
 
              else
-                [ text mat.name
+                [ span [] [ text mat.name ]
                 , button
-                    [ onClick (ToggleMatNameEdit mat)
-                    , class "edit-mat-name"
-                    ]
+                    [ onClick (ToggleMatNameEdit mat) ]
                     [ FeatherIcons.edit
-                        |> FeatherIcons.withSize 10
+                        |> FeatherIcons.withSize 24
                         |> FeatherIcons.toHtml []
                     ]
                 ]
