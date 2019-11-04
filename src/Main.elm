@@ -57,10 +57,9 @@ type CardType
     | Null
 
 
-type alias Card =
-    { id : Id
-    , cardType : CardType
-    }
+type Card
+    = StandardCard { id : Id, cardType : CardType }
+    | CustomCard { id : Id, description : String }
 
 
 type alias Pile =
@@ -81,6 +80,7 @@ type alias Mat =
     , cardEditState : EditState
     , nameEditState : EditState
     , name : String
+    , customCardText : String
     }
 
 
@@ -119,13 +119,13 @@ stringForCardType cardType =
 makeDefaultCards : Nonce -> ( Nonce, List Card )
 makeDefaultCards nonce =
     ( nonce + 7
-    , [ Card (nonce + 0) Zero
-      , Card (nonce + 1) One
-      , Card (nonce + 2) MinusOne
-      , Card (nonce + 3) Two
-      , Card (nonce + 4) MinusTwo
-      , Card (nonce + 5) Crit
-      , Card (nonce + 6) Null
+    , [ StandardCard { id = nonce + 0, cardType = Zero }
+      , StandardCard { id = nonce + 1, cardType = One }
+      , StandardCard { id = nonce + 2, cardType = MinusOne }
+      , StandardCard { id = nonce + 3, cardType = Two }
+      , StandardCard { id = nonce + 4, cardType = MinusTwo }
+      , StandardCard { id = nonce + 5, cardType = Crit }
+      , StandardCard { id = nonce + 6, cardType = Null }
       ]
     )
 
@@ -138,6 +138,7 @@ defaultMat =
     , cardEditState = Editing
     , nameEditState = Default
     , name = "Mat 1"
+    , customCardText = ""
     }
 
 
@@ -162,13 +163,15 @@ type Msg
       -- mat operations
     | Reshuffle Mat
     | Draw Mat
-    | AddCard Mat CardType
+    | AddStandardCard Mat CardType
+    | AddCustomCard Mat
     | RemoveCard Pile Mat Card
     | ToggleMatCardEdit Mat
     | ToggleMatNameEdit Mat
     | AddDefaultCards Mat
     | RemoveAllCards Mat
     | HandleMatNameInput Mat String
+    | HandleCustomCardInput Mat String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -190,6 +193,7 @@ update msg model =
                     , cardEditState = Default
                     , nameEditState = Default
                     , name = "Mat " ++ String.fromInt (List.length model.mats + 1)
+                    , customCardText = ""
                     }
             in
             ( { model | mats = model.mats ++ [ newMat ], nonce = model.nonce + 3 }, Cmd.none )
@@ -265,7 +269,7 @@ update msg model =
                     in
                     ( { model | mats = newMats, seed = newSeed }, Cmd.none )
 
-        AddCard mat cardType ->
+        AddStandardCard mat cardType ->
             let
                 oldDeck : Pile
                 oldDeck =
@@ -273,7 +277,27 @@ update msg model =
 
                 newDeck : Pile
                 newDeck =
-                    { oldDeck | cards = Card model.nonce cardType :: oldDeck.cards }
+                    { oldDeck | cards = StandardCard { id = model.nonce, cardType = cardType } :: oldDeck.cards }
+
+                newMat : Mat
+                newMat =
+                    { mat | deck = newDeck }
+
+                newMats : List Mat
+                newMats =
+                    replace mat newMat model.mats
+            in
+            ( { model | mats = newMats, nonce = model.nonce + 1 }, Cmd.none )
+
+        AddCustomCard mat ->
+            let
+                oldDeck : Pile
+                oldDeck =
+                    mat.deck
+
+                newDeck : Pile
+                newDeck =
+                    { oldDeck | cards = CustomCard { id = model.nonce, description = mat.customCardText } :: oldDeck.cards }
 
                 newMat : Mat
                 newMat =
@@ -393,6 +417,18 @@ update msg model =
             in
             ( { model | mats = newMats }, Cmd.none )
 
+        HandleCustomCardInput mat text ->
+            let
+                newMat : Mat
+                newMat =
+                    { mat | customCardText = text }
+
+                newMats : List Mat
+                newMats =
+                    replace mat newMat model.mats
+            in
+            ( { model | mats = newMats }, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -417,13 +453,30 @@ cardRow mat card =
                 , classList [ ( "invisible", mat.cardEditState /= Editing ) ]
                 ]
                 [ text "-" ]
+
+        label : String
+        label =
+            case card of
+                StandardCard { cardType } ->
+                    stringForCardType cardType
+
+                CustomCard { description } ->
+                    description
     in
-    li [] [ removeButton, text (stringForCardType card.cardType) ]
+    li [] [ removeButton, text label ]
+
+
+renderAddCustomCard : Mat -> Html Msg
+renderAddCustomCard mat =
+    span []
+        [ button [ onClick (AddCustomCard mat) ] [ text "+Custom Card" ]
+        , input [ onInput (HandleCustomCardInput mat) ] []
+        ]
 
 
 renderAddCard : Mat -> CardType -> Html Msg
 renderAddCard mat cardType =
-    button [ onClick (AddCard mat cardType) ] [ text ("+" ++ stringForCardType cardType) ]
+    button [ onClick (AddStandardCard mat cardType) ] [ text ("+" ++ stringForCardType cardType) ]
 
 
 focusMatNameInput : Id -> Cmd Msg
@@ -465,6 +518,7 @@ renderMat mat =
             , renderAddCard mat MinusTwo
             , renderAddCard mat Crit
             , renderAddCard mat Null
+            , renderAddCustomCard mat
             , text "|"
             , button [ onClick (AddDefaultCards mat) ] [ text "Add Default Cards" ]
             , button [ onClick (RemoveAllCards mat) ] [ text "Remove All Cards" ]
