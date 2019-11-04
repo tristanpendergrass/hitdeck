@@ -24,3 +24,12 @@ button.warn {
   background-color: red;
   color: white;
 }
+
+.mat-container {
+  display: flex;
+
+  > * {
+    flex-grow: 1;
+    border: 1px solid black;
+  }
+}
