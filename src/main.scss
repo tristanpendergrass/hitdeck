@@ -51,7 +51,9 @@ button.warn {
   margin-right: 10px;
 
   .card {
-    border: 1px solid black;
+    border: 1px solid white;
+    background-color: #ffc0cb;
+    color: red;
     border-radius: 5px;
     width: $card-width;
     height: $card-height;

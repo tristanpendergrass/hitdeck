@@ -104,7 +104,7 @@ stringForCardType cardType =
             "-1"
 
         Two ->
-            "2"
+            "+2"
 
         MinusTwo ->
             "-2"
