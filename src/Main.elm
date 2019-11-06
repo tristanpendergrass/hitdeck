@@ -118,24 +118,41 @@ stringForCardType cardType =
 
 makeDefaultCards : Nonce -> ( Nonce, List Card )
 makeDefaultCards nonce =
-    ( nonce + 7
-    , [ StandardCard { id = nonce + 0, cardType = Zero }
-      , StandardCard { id = nonce + 1, cardType = One }
-      , StandardCard { id = nonce + 2, cardType = MinusOne }
-      , StandardCard { id = nonce + 3, cardType = Two }
-      , StandardCard { id = nonce + 4, cardType = MinusTwo }
-      , StandardCard { id = nonce + 5, cardType = Crit }
-      , StandardCard { id = nonce + 6, cardType = Null }
+    ( nonce + 21
+    , [ StandardCard { id = nonce + 1, cardType = Zero }
+      , StandardCard { id = nonce + 2, cardType = Zero }
+      , StandardCard { id = nonce + 3, cardType = Zero }
+      , StandardCard { id = nonce + 4, cardType = Zero }
+      , StandardCard { id = nonce + 5, cardType = Zero }
+      , StandardCard { id = nonce + 6, cardType = Zero }
+      , StandardCard { id = nonce + 7, cardType = One }
+      , StandardCard { id = nonce + 8, cardType = One }
+      , StandardCard { id = nonce + 9, cardType = One }
+      , StandardCard { id = nonce + 10, cardType = One }
+      , StandardCard { id = nonce + 11, cardType = One }
+      , StandardCard { id = nonce + 12, cardType = MinusOne }
+      , StandardCard { id = nonce + 13, cardType = MinusOne }
+      , StandardCard { id = nonce + 14, cardType = MinusOne }
+      , StandardCard { id = nonce + 15, cardType = MinusOne }
+      , StandardCard { id = nonce + 16, cardType = MinusOne }
+      , StandardCard { id = nonce + 17, cardType = Two }
+      , StandardCard { id = nonce + 18, cardType = MinusTwo }
+      , StandardCard { id = nonce + 19, cardType = Crit }
+      , StandardCard { id = nonce + 20, cardType = Null }
       ]
     )
 
 
 defaultMat : Mat
 defaultMat =
-    { id = 1
-    , deck = { id = 2, cards = [] }
-    , discard = { id = 3, cards = [] }
-    , cardEditState = Editing
+    let
+        ( _, defaultCards ) =
+            makeDefaultCards 0
+    in
+    { id = 0
+    , deck = { id = 50, cards = defaultCards }
+    , discard = { id = 51, cards = [] }
+    , cardEditState = Default
     , nameEditState = Default
     , name = "Mat 1"
     , customCardText = ""
@@ -145,7 +162,7 @@ defaultMat =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { mats = [ defaultMat ]
-      , nonce = 4
+      , nonce = 100
       , seed = Random.initialSeed 0
       }
     , Task.perform GenerateSeed Time.now
