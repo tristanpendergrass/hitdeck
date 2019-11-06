@@ -95,19 +95,19 @@ stringForCardType : CardType -> String
 stringForCardType cardType =
     case cardType of
         Zero ->
-            "Zero"
+            "+0"
 
         One ->
-            "One"
+            "+1"
 
         MinusOne ->
-            "MinusOne"
+            "-1"
 
         Two ->
-            "Two"
+            "2"
 
         MinusTwo ->
-            "MinusTwo"
+            "-2"
 
         Crit ->
             "Crit"
@@ -443,14 +443,14 @@ subscriptions _ =
 -- VIEW
 
 
-cardRow : Mat -> Card -> Html Msg
-cardRow mat card =
+renderCard : Mat -> Card -> Html Msg
+renderCard mat card =
     let
         removeButton : Html Msg
         removeButton =
             button
                 [ onClick (RemoveCard mat.deck mat card)
-                , classList [ ( "invisible", mat.cardEditState /= Editing ) ]
+                , classList [ ( "remove-button", True ), ( "invisible", mat.cardEditState /= Editing ) ]
                 ]
                 [ text "-" ]
 
@@ -463,7 +463,10 @@ cardRow mat card =
                 CustomCard { description } ->
                     description
     in
-    li [] [ removeButton, text label ]
+    li [ class "card-container" ]
+        [ div [ class "card" ] [ text label ]
+        , removeButton
+        ]
 
 
 renderAddCustomCard : Mat -> Html Msg
@@ -484,7 +487,7 @@ renderAddCard mat cardType =
             [ onClick (AddStandardCard mat cardType)
             , classList [ ( "invisible", mat.cardEditState /= Editing ) ]
             ]
-            [ text ("+" ++ stringForCardType cardType) ]
+            [ text ("Add " ++ stringForCardType cardType) ]
         ]
 
 
@@ -518,7 +521,7 @@ renderMat mat =
                 ]
             )
         , div [ class "mat-container" ]
-            [ div []
+            [ div [ class "buttons-pane" ]
                 [ div [] [ button [ onClick (Draw mat), disabled (List.isEmpty mat.deck.cards) ] [ text "Draw" ] ]
                 , div [] [ button [ onClick (Reshuffle mat), disabled (List.isEmpty mat.discard.cards) ] [ text "Reshuffle" ] ]
                 , div [] [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle Editing" ] ]
@@ -533,8 +536,8 @@ renderMat mat =
                 , div [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ] [ button [ onClick (AddDefaultCards mat) ] [ text "Add Default Cards" ] ]
                 , div [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ] [ button [ class "warn", onClick (RemoveAllCards mat) ] [ text "Remove All Cards" ] ]
                 ]
-            , div [] [ ul [] (List.map (cardRow mat) mat.deck.cards) ]
-            , div [] [ ul [] (List.map (cardRow mat) mat.discard.cards) ]
+            , div [ class "deck-pane" ] [ ul [] (List.map (renderCard mat) mat.deck.cards) ]
+            , div [ class "discard-pane" ] [ ul [] (List.map (renderCard mat) mat.discard.cards) ]
             ]
         ]
 

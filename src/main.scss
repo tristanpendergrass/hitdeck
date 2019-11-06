@@ -28,8 +28,44 @@ button.warn {
 .mat-container {
   display: flex;
 
-  > * {
-    flex-grow: 1;
+  .buttons-pane,
+  .deck-pane,
+  .discard-pane {
     border: 1px solid black;
+    height: 333px;
+    overflow: auto;
+  }
+
+  .deck-pane,
+  .discard-pane {
+    flex-basis: 50%;
+  }
+}
+
+.card-container {
+  $card-width: 100px;
+  $card-height: $card-width / 1.4;
+
+  display: inline-block;
+  width: $card-width;
+  margin-right: 10px;
+
+  .card {
+    border: 1px solid black;
+    border-radius: 5px;
+    width: $card-width;
+    height: $card-height;
+    text-align: center;
+    line-height: $card-height;
+    font-weight: bold;
+  }
+
+  .remove-button {
+    $remove-button-width: 20px;
+
+    display: block;
+    width: $remove-button-width;
+    text-align: center;
+    margin: auto;
   }
 }
