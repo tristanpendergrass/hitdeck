@@ -35,6 +35,16 @@ getMatId id =
     "mat-" ++ String.fromInt id
 
 
+cardShouldReshuffle : Card -> Bool
+cardShouldReshuffle card =
+    case card of
+        CustomCard _ ->
+            True
+
+        StandardCard { cardType } ->
+            cardType /= Blessing && cardType /= Curse
+
+
 
 -- MODEL
 
@@ -55,6 +65,8 @@ type CardType
     | MinusTwo
     | Crit
     | Null
+    | Blessing
+    | Curse
 
 
 type Card
@@ -114,6 +126,12 @@ stringForCardType cardType =
 
         Null ->
             "Null"
+
+        Blessing ->
+            "Blessing"
+
+        Curse ->
+            "Curse"
 
 
 makeDefaultCards : Nonce -> ( Nonce, List Card )
@@ -217,12 +235,14 @@ update msg model =
 
         Reshuffle mat ->
             let
-                allCards : List Card
-                allCards =
-                    List.concat [ mat.deck.cards, mat.discard.cards ]
+                cardsToShuffle : List Card
+                cardsToShuffle =
+                    [ mat.deck.cards, mat.discard.cards ]
+                        |> List.concat
+                        |> List.filter cardShouldReshuffle
 
                 ( shuffledCards, newSeed ) =
-                    Random.step (shuffle allCards) model.seed
+                    Random.step (shuffle cardsToShuffle) model.seed
 
                 oldDeck : Pile
                 oldDeck =
@@ -549,6 +569,8 @@ renderMat mat =
                 , renderAddCard mat MinusTwo
                 , renderAddCard mat Crit
                 , renderAddCard mat Null
+                , renderAddCard mat Blessing
+                , renderAddCard mat Curse
                 , renderAddCustomCard mat
                 , div [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ] [ button [ onClick (AddDefaultCards mat) ] [ text "Add Default Cards" ] ]
                 , div [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ] [ button [ class "warn", onClick (RemoveAllCards mat) ] [ text "Remove All Cards" ] ]
