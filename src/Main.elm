@@ -103,8 +103,8 @@ type alias Model =
     }
 
 
-stringForCardType : CardType -> String
-stringForCardType cardType =
+labelForCardType : CardType -> String
+labelForCardType cardType =
     case cardType of
         Zero ->
             "+0"
@@ -134,10 +134,36 @@ stringForCardType cardType =
             "Curse"
 
 
+cardTypeClass : Card -> String
+cardTypeClass card =
+    case card of
+        CustomCard _ ->
+            "custom"
+
+        StandardCard { cardType } ->
+            case cardType of
+                Crit ->
+                    "crit"
+
+                Null ->
+                    "null"
+
+                Blessing ->
+                    "blessing"
+
+                Curse ->
+                    "curse"
+
+                _ ->
+                    "normal"
+
+
 makeDefaultCards : Nonce -> ( Nonce, List Card )
 makeDefaultCards nonce =
     ( nonce + 21
-    , [ StandardCard { id = nonce + 1, cardType = Zero }
+    , [ StandardCard { id = nonce + 19, cardType = Crit }
+      , StandardCard { id = nonce + 20, cardType = Null }
+      , StandardCard { id = nonce + 1, cardType = Zero }
       , StandardCard { id = nonce + 2, cardType = Zero }
       , StandardCard { id = nonce + 3, cardType = Zero }
       , StandardCard { id = nonce + 4, cardType = Zero }
@@ -155,8 +181,6 @@ makeDefaultCards nonce =
       , StandardCard { id = nonce + 16, cardType = MinusOne }
       , StandardCard { id = nonce + 17, cardType = Two }
       , StandardCard { id = nonce + 18, cardType = MinusTwo }
-      , StandardCard { id = nonce + 19, cardType = Crit }
-      , StandardCard { id = nonce + 20, cardType = Null }
       ]
     )
 
@@ -495,13 +519,13 @@ renderCard mat card =
         label =
             case card of
                 StandardCard { cardType } ->
-                    stringForCardType cardType
+                    labelForCardType cardType
 
                 CustomCard { description } ->
                     description
     in
     li [ class "card-container" ]
-        [ div [ class "card" ] [ text label ]
+        [ div [ class "card", class (cardTypeClass card) ] [ text label ]
         , removeButton
         ]
 
@@ -524,7 +548,7 @@ renderAddCard mat cardType =
             [ onClick (AddStandardCard mat cardType)
             , classList [ ( "invisible", mat.cardEditState /= Editing ) ]
             ]
-            [ text ("Add " ++ stringForCardType cardType) ]
+            [ text ("Add " ++ labelForCardType cardType) ]
         ]
 
 

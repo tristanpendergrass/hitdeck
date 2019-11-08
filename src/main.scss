@@ -32,7 +32,7 @@ button.warn {
   .deck-pane,
   .discard-pane {
     border: 1px solid black;
-    height: 333px;
+    height: 500px;
     overflow: auto;
   }
 
@@ -60,6 +60,25 @@ button.warn {
     text-align: center;
     line-height: $card-height;
     font-weight: bold;
+    overflow: auto;
+
+    &.crit {
+      background-color: rebeccapurple;
+      color: white;
+    }
+    &.null {
+      background-color: gold;
+      color: black;
+    }
+    &.blessing {
+      background-color: lighten(rebeccapurple, 30%);
+    }
+    &.curse {
+      background-color: lighten(gold, 30%);
+    }
+    &.custom {
+      background-color: lightpink;
+    }
   }
 
   .remove-button {
