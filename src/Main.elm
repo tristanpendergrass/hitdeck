@@ -3,8 +3,8 @@ module Main exposing (Model, Msg(..), init, main, update, view)
 import Browser
 import Browser.Dom
 import FeatherIcons
-import Html exposing (Html, button, div, hr, input, li, span, text, ul)
-import Html.Attributes exposing (class, classList, disabled, id, value)
+import Html exposing (Html, button, div, hr, img, input, li, span, text, ul)
+import Html.Attributes exposing (alt, class, classList, disabled, id, src, value)
 import Html.Events exposing (onBlur, onClick, onInput)
 import List.Extra
 import Random
@@ -525,7 +525,7 @@ renderCard mat card =
                     description
     in
     li [ class "card-container" ]
-        [ div [ class "card", class (cardTypeClass card) ] [ text label ]
+        [ img [ class "card", src "back.jpg", alt label ] []
         , removeButton
         ]
 
