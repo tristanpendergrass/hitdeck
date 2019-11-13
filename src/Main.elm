@@ -134,6 +134,37 @@ labelForCardType cardType =
             "Curse"
 
 
+srcForCardType : CardType -> String
+srcForCardType cardType =
+    case cardType of
+        Zero ->
+            "attack_modifiers/0.png"
+
+        One ->
+            "attack_modifiers/1.png"
+
+        MinusOne ->
+            "attack_modifiers/minus_1.png"
+
+        Two ->
+            "attack_modifiers/2.png"
+
+        MinusTwo ->
+            "attack_modifiers/minus_2.png"
+
+        Crit ->
+            "attack_modifiers/crit.png"
+
+        Null ->
+            "attack_modifiers/null.png"
+
+        Blessing ->
+            "attack_modifiers/blessing.png"
+
+        Curse ->
+            "attack_modifiers/curse.png"
+
+
 cardTypeClass : Card -> String
 cardTypeClass card =
     case card of
@@ -515,17 +546,20 @@ renderCard mat card =
                 ]
                 [ text "-" ]
 
-        label : String
-        label =
+        displayCard : Html Msg
+        displayCard =
             case card of
                 StandardCard { cardType } ->
-                    labelForCardType cardType
+                    div [ class "standard-card-container" ]
+                        [ img [ class "card standard background", src "attack_modifiers/blank.jpg", alt "Card Background" ] []
+                        , img [ class "card standard foreground", src <| srcForCardType cardType, alt <| labelForCardType cardType ] []
+                        ]
 
                 CustomCard { description } ->
-                    description
+                    div [ class "card custom" ] [ text description ]
     in
     li [ class "card-container" ]
-        [ img [ class "card", src "back.jpg", alt label ] []
+        [ displayCard
         , removeButton
         ]
 

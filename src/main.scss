@@ -50,9 +50,11 @@ button.warn {
   width: $card-width;
   margin-right: 10px;
 
+  .standard-card-container {
+    position: relative;
+  }
   .card {
     border: 1px solid black;
-    background-color: lightgrey;
     color: black;
     border-radius: 5px;
     width: $card-width;
@@ -61,6 +63,12 @@ button.warn {
     line-height: $card-height;
     font-weight: bold;
     overflow: auto;
+
+    &.foreground {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
 
     &.crit {
       background-color: rebeccapurple;
