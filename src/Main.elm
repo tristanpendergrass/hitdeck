@@ -103,90 +103,6 @@ type alias Model =
     }
 
 
-labelForCardType : CardType -> String
-labelForCardType cardType =
-    case cardType of
-        Zero ->
-            "+0"
-
-        One ->
-            "+1"
-
-        MinusOne ->
-            "-1"
-
-        Two ->
-            "+2"
-
-        MinusTwo ->
-            "-2"
-
-        Crit ->
-            "Crit"
-
-        Null ->
-            "Null"
-
-        Blessing ->
-            "Blessing"
-
-        Curse ->
-            "Curse"
-
-
-srcForCardType : CardType -> String
-srcForCardType cardType =
-    case cardType of
-        Zero ->
-            "attack_modifiers/0.png"
-
-        One ->
-            "attack_modifiers/1.png"
-
-        MinusOne ->
-            "attack_modifiers/minus_1.png"
-
-        Two ->
-            "attack_modifiers/2.png"
-
-        MinusTwo ->
-            "attack_modifiers/minus_2.png"
-
-        Crit ->
-            "attack_modifiers/crit.png"
-
-        Null ->
-            "attack_modifiers/null.png"
-
-        Blessing ->
-            "attack_modifiers/blessing.png"
-
-        Curse ->
-            "attack_modifiers/curse.png"
-
-
-cardTypeClass : Card -> String
-cardTypeClass card =
-    case card of
-        CustomCard _ ->
-            "custom"
-
-        StandardCard { cardType } ->
-            case cardType of
-                Crit ->
-                    "crit"
-
-                Null ->
-                    "null"
-
-                Blessing ->
-                    "blessing"
-
-                Curse ->
-                    "curse"
-
-                _ ->
-                    "normal"
 
 
 makeDefaultCards : Nonce -> ( Nonce, List Card )
@@ -537,6 +453,90 @@ subscriptions _ =
 
 -- VIEW
 
+labelForCardType : CardType -> String
+labelForCardType cardType =
+    case cardType of
+        Zero ->
+            "+0"
+
+        One ->
+            "+1"
+
+        MinusOne ->
+            "-1"
+
+        Two ->
+            "+2"
+
+        MinusTwo ->
+            "-2"
+
+        Crit ->
+            "Crit"
+
+        Null ->
+            "Null"
+
+        Blessing ->
+            "Blessing"
+
+        Curse ->
+            "Curse"
+
+
+srcForCardType : CardType -> String
+srcForCardType cardType =
+    case cardType of
+        Zero ->
+            "attack_modifiers/0.png"
+
+        One ->
+            "attack_modifiers/1.png"
+
+        MinusOne ->
+            "attack_modifiers/minus_1.png"
+
+        Two ->
+            "attack_modifiers/2.png"
+
+        MinusTwo ->
+            "attack_modifiers/minus_2.png"
+
+        Crit ->
+            "attack_modifiers/crit.png"
+
+        Null ->
+            "attack_modifiers/null.png"
+
+        Blessing ->
+            "attack_modifiers/blessing.png"
+
+        Curse ->
+            "attack_modifiers/curse.png"
+
+
+cardTypeClass : Card -> String
+cardTypeClass card =
+    case card of
+        CustomCard _ ->
+            "custom"
+
+        StandardCard { cardType } ->
+            case cardType of
+                Crit ->
+                    "crit"
+
+                Null ->
+                    "null"
+
+                Blessing ->
+                    "blessing"
+
+                Curse ->
+                    "curse"
+
+                _ ->
+                    "normal"
 
 renderCard : Mat -> Card -> Html Msg
 renderCard mat card =
