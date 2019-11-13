@@ -3,7 +3,7 @@ port module Main exposing (Model, Msg(..), init, main, update, view)
 import Browser
 import Browser.Dom
 import FeatherIcons
-import Html exposing (Html, button, div, hr, img, input, li, span, text, ul)
+import Html exposing (Html, button, div, h2, hr, img, input, li, span, text, ul)
 import Html.Attributes exposing (alt, class, classList, disabled, id, src, value)
 import Html.Events exposing (onBlur, onClick, onInput)
 import List.Extra
@@ -101,8 +101,6 @@ type alias Model =
     , nonce : Nonce
     , seed : Random.Seed
     }
-
-
 
 
 makeDefaultCards : Nonce -> ( Nonce, List Card )
@@ -453,6 +451,7 @@ subscriptions _ =
 
 -- VIEW
 
+
 labelForCardType : CardType -> String
 labelForCardType cardType =
     case cardType of
@@ -538,6 +537,7 @@ cardTypeClass card =
                 _ ->
                     "normal"
 
+
 renderCard : Mat -> Card -> Html Msg
 renderCard mat card =
     let
@@ -620,9 +620,7 @@ renderMat mat =
             )
         , div [ class "mat-container" ]
             [ div [ class "buttons-pane" ]
-                [ div [] [ button [ onClick (Draw mat), disabled (List.isEmpty mat.deck.cards) ] [ text "Draw" ] ]
-                , div [] [ button [ onClick (Reshuffle mat), disabled (List.isEmpty mat.discard.cards) ] [ text "Reshuffle" ] ]
-                , div [] [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle Editing" ] ]
+                [ div [] [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle Editing" ] ]
                 , renderAddCard mat Zero
                 , renderAddCard mat One
                 , renderAddCard mat MinusOne
@@ -636,8 +634,30 @@ renderMat mat =
                 , div [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ] [ button [ onClick (AddDefaultCards mat) ] [ text "Add Default Cards" ] ]
                 , div [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ] [ button [ class "warn", onClick (RemoveAllCards mat) ] [ text "Remove All Cards" ] ]
                 ]
-            , div [ class "deck-pane" ] [ ul [] (List.map (renderCard mat) mat.deck.cards) ]
-            , div [ class "discard-pane" ] [ ul [] (List.map (renderCard mat) mat.discard.cards) ]
+            , div [ class "deck-pane" ]
+                [ div [ class "pane-header" ]
+                    [ h2 [] [ text "Deck" ]
+                    , button [ onClick (Draw mat), disabled (List.isEmpty mat.deck.cards) ]
+                        [ FeatherIcons.zap
+                            |> FeatherIcons.withSize 16
+                            |> FeatherIcons.toHtml []
+                        , text "Draw"
+                        ]
+                    ]
+                , ul [] (List.map (renderCard mat) mat.deck.cards)
+                ]
+            , div [ class "discard-pane" ]
+                [ div [ class "pane-header" ]
+                    [ h2 [] [ text "Discard" ]
+                    , button [ onClick (Reshuffle mat), disabled (List.isEmpty mat.discard.cards) ]
+                        [ FeatherIcons.shuffle
+                            |> FeatherIcons.withSize 16
+                            |> FeatherIcons.toHtml []
+                        , text "Reshuffle"
+                        ]
+                    ]
+                , ul [] (List.map (renderCard mat) mat.discard.cards)
+                ]
             ]
         ]
 
