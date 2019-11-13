@@ -1,4 +1,4 @@
-module Main exposing (Model, Msg(..), init, main, update, view)
+port module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
 import Browser.Dom
@@ -13,7 +13,7 @@ import Task
 import Time
 
 
-main : Program () Model Msg
+main : Program String Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -216,8 +216,8 @@ makeDefaultCards nonce =
     )
 
 
-defaultMat : Mat
-defaultMat =
+defaultMat : String -> Mat
+defaultMat initialName =
     let
         ( _, defaultCards ) =
             makeDefaultCards 0
@@ -227,14 +227,14 @@ defaultMat =
     , discard = { id = 51, cards = [] }
     , cardEditState = Default
     , nameEditState = Default
-    , name = "Mat 1"
+    , name = initialName
     , customCardText = ""
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( { mats = [ defaultMat ]
+init : String -> ( Model, Cmd Msg )
+init initialName =
+    ( { mats = [ defaultMat initialName ]
       , nonce = 100
       , seed = Random.initialSeed 0
       }
@@ -244,6 +244,9 @@ init _ =
 
 
 -- UPDATE
+
+
+port sendName : String -> Cmd msg
 
 
 type Msg
@@ -507,7 +510,7 @@ update msg model =
                 newMats =
                     replace mat newMat model.mats
             in
-            ( { model | mats = newMats }, Cmd.none )
+            ( { model | mats = newMats }, sendName name )
 
         HandleCustomCardInput mat text ->
             let

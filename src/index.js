@@ -1,5 +1,12 @@
 import { Elm } from "./Main.elm";
 
-Elm.Main.init({
-  node: document.querySelector("main")
+const initialName = localStorage.getItem("initialName");
+
+const app = Elm.Main.init({
+  node: document.querySelector("main"),
+  flags: initialName || "Default"
+});
+
+app.ports.sendName.subscribe(name => {
+  localStorage.setItem("initialName", name);
 });
