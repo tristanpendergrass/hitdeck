@@ -1,12 +1,12 @@
 import { Elm } from "./Main.elm";
 
-const initialName = localStorage.getItem("initialName");
+const localStorageData = JSON.parse(localStorage.getItem("hitdeck"));
 
 const app = Elm.Main.init({
   node: document.querySelector("main"),
-  flags: initialName || "Default"
+  flags: localStorageData
 });
 
-app.ports.sendName.subscribe(name => {
-  localStorage.setItem("initialName", name);
+app.ports.sendToLocalStorage.subscribe(data => {
+  localStorage.setItem("hitdeck", JSON.stringify(data));
 });

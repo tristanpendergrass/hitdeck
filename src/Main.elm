@@ -6,6 +6,8 @@ import FeatherIcons
 import Html exposing (Html, button, div, h2, hr, img, input, li, span, text, ul)
 import Html.Attributes exposing (alt, class, classList, disabled, id, src, value)
 import Html.Events exposing (onBlur, onClick, onInput)
+import Json.Decode as D
+import Json.Encode as E
 import List.Extra
 import Random
 import Random.List exposing (shuffle)
@@ -13,7 +15,7 @@ import Task
 import Time
 
 
-main : Program String Model Msg
+main : Program D.Value Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -146,10 +148,20 @@ defaultMat initialName =
     }
 
 
-init : String -> ( Model, Cmd Msg )
-init initialName =
-    ( { mats = [ defaultMat initialName ]
-      , nonce = 100
+init : D.Value -> ( Model, Cmd Msg )
+init localStorageData =
+    let
+        nonce : Int
+        nonce =
+            case D.decodeValue (D.field "nonce" D.int) localStorageData of
+                Ok val ->
+                    val
+
+                Err _ ->
+                    1000
+    in
+    ( { mats = [ defaultMat "default" ]
+      , nonce = nonce
       , seed = Random.initialSeed 0
       }
     , Task.perform GenerateSeed Time.now
@@ -160,7 +172,12 @@ init initialName =
 -- UPDATE
 
 
-port sendName : String -> Cmd msg
+port sendToLocalStorage : E.Value -> Cmd msg
+
+
+encodeModel : Model -> E.Value
+encodeModel model =
+    E.object [ ( "nonce", E.int model.nonce ) ]
 
 
 type Msg
@@ -424,7 +441,7 @@ update msg model =
                 newMats =
                     replace mat newMat model.mats
             in
-            ( { model | mats = newMats }, sendName name )
+            ( { model | mats = newMats }, sendToLocalStorage <| encodeModel model )
 
         HandleCustomCardInput mat text ->
             let
