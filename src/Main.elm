@@ -72,8 +72,14 @@ type CardType
 
 
 type Card
-    = StandardCard { id : Id, cardType : CardType }
-    | CustomCard { id : Id, description : String }
+    = StandardCard
+        { id : Id
+        , cardType : CardType
+        }
+    | CustomCard
+        { id : Id
+        , description : String
+        }
 
 
 type alias Pile =
@@ -159,8 +165,104 @@ init localStorageData =
 
                 Err _ ->
                     1000
+
+        cardTypeDecoder : D.Decoder CardType
+        cardTypeDecoder =
+            D.map
+                (\cardType ->
+                    case cardType of
+                        "Zero" ->
+                            Zero
+
+                        "One" ->
+                            One
+
+                        "MinusOne" ->
+                            MinusOne
+
+                        "Two" ->
+                            Two
+
+                        "MinusTwo" ->
+                            MinusTwo
+
+                        "Crit" ->
+                            Crit
+
+                        "Null" ->
+                            Null
+
+                        "Blessing" ->
+                            Blessing
+
+                        "Curse" ->
+                            Curse
+
+                        _ ->
+                            Zero
+                )
+                D.string
+
+        standardCardDecoder : D.Decoder Card
+        standardCardDecoder =
+            D.map2 (\id cardType -> StandardCard { id = id, cardType = cardType })
+                (D.field "id" D.int)
+                (D.field "cardType" cardTypeDecoder)
+
+        customCardDecoder : D.Decoder Card
+        customCardDecoder =
+            D.map2 (\id description -> CustomCard { id = id, description = description })
+                (D.field "id" D.int)
+                (D.field "description" D.string)
+
+        cardDecoder : D.Decoder Card
+        cardDecoder =
+            D.oneOf
+                [ standardCardDecoder, customCardDecoder ]
+
+        cardsDecoder : D.Decoder (List Card)
+        cardsDecoder =
+            D.list cardDecoder
+
+        pileDecoder : D.Decoder Pile
+        pileDecoder =
+            D.map2 Pile
+                (D.field "id" D.int)
+                (D.field "cards" cardsDecoder)
+
+        editStateDecoder : D.Decoder EditState
+        editStateDecoder =
+            D.map
+                (\editState ->
+                    if editState == "Editing" then
+                        Editing
+
+                    else
+                        Default
+                )
+                D.string
+
+        matDecoder : D.Decoder Mat
+        matDecoder =
+            D.map7 Mat
+                (D.field "id" D.int)
+                (D.field "deck" pileDecoder)
+                (D.field "discard" pileDecoder)
+                (D.field "cardEditState" editStateDecoder)
+                (D.field "nameEditState" editStateDecoder)
+                (D.field "name" D.string)
+                (D.field "customCardText" D.string)
+
+        mats : List Mat
+        mats =
+            case D.decodeValue (D.field "mats" (D.list matDecoder)) localStorageData of
+                Ok val ->
+                    val
+
+                Err _ ->
+                    []
     in
-    ( { mats = [ defaultMat "default" ]
+    ( { mats = mats
       , nonce = nonce
       , seed = Random.initialSeed 0
       }
@@ -177,7 +279,85 @@ port sendToLocalStorage : E.Value -> Cmd msg
 
 encodeModel : Model -> E.Value
 encodeModel model =
-    E.object [ ( "nonce", E.int model.nonce ) ]
+    let
+        encodeCard : Card -> E.Value
+        encodeCard card =
+            case card of
+                StandardCard { id, cardType } ->
+                    let
+                        cardTypeString : String
+                        cardTypeString =
+                            case cardType of
+                                Zero ->
+                                    "Zero"
+
+                                One ->
+                                    "One"
+
+                                MinusOne ->
+                                    "MinusOne"
+
+                                Two ->
+                                    "Two"
+
+                                MinusTwo ->
+                                    "MinusTwo"
+
+                                Crit ->
+                                    "Crit"
+
+                                Null ->
+                                    "Null"
+
+                                Blessing ->
+                                    "Blessing"
+
+                                Curse ->
+                                    "Curse"
+                    in
+                    E.object
+                        [ ( "id", E.int id )
+                        , ( "cardType", E.string cardTypeString )
+                        ]
+
+                CustomCard { id, description } ->
+                    E.object
+                        [ ( "id", E.int id )
+                        , ( "description", E.string description )
+                        ]
+
+        encodePile : Pile -> E.Value
+        encodePile pile =
+            E.object
+                [ ( "id", E.int pile.id )
+                , ( "cards", E.list encodeCard pile.cards )
+                ]
+
+        encodeEditState : EditState -> E.Value
+        encodeEditState editState =
+            case editState of
+                Default ->
+                    E.string "Default"
+
+                Editing ->
+                    E.string "Editing"
+
+        encodeMat : Mat -> E.Value
+        encodeMat mat =
+            E.object
+                [ ( "id", E.int mat.id )
+                , ( "deck", encodePile mat.deck )
+                , ( "discard", encodePile mat.discard )
+                , ( "cardEditState", encodeEditState mat.cardEditState )
+                , ( "nameEditState", encodeEditState mat.nameEditState )
+                , ( "name", E.string mat.name )
+                , ( "customCardText", E.string mat.customCardText )
+                ]
+    in
+    E.object
+        [ ( "nonce", E.int model.nonce )
+        , ( "mats", E.list encodeMat model.mats )
+        ]
 
 
 type Msg
@@ -219,8 +399,12 @@ update msg model =
                     , name = "Mat " ++ String.fromInt (List.length model.mats + 1)
                     , customCardText = ""
                     }
+
+                newModel : Model
+                newModel =
+                    { model | mats = model.mats ++ [ newMat ], nonce = model.nonce + 3 }
             in
-            ( { model | mats = model.mats ++ [ newMat ], nonce = model.nonce + 3 }, Cmd.none )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         Reshuffle mat ->
             let
@@ -256,8 +440,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats, seed = newSeed }
             in
-            ( { model | mats = newMats, seed = newSeed }, Cmd.none )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         Draw mat ->
             case mat.deck.cards of
@@ -292,8 +480,12 @@ update msg model =
                         newMats : List Mat
                         newMats =
                             replace mat newMat model.mats
+
+                        newModel : Model
+                        newModel =
+                            { model | mats = newMats, seed = newSeed }
                     in
-                    ( { model | mats = newMats, seed = newSeed }, Cmd.none )
+                    ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         AddStandardCard mat cardType ->
             let
@@ -312,8 +504,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats, nonce = model.nonce + 1 }
             in
-            ( { model | mats = newMats, nonce = model.nonce + 1 }, Cmd.none )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         AddCustomCard mat ->
             let
@@ -332,8 +528,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats, nonce = model.nonce + 1 }
             in
-            ( { model | mats = newMats, nonce = model.nonce + 1 }, Cmd.none )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         RemoveCard deck mat card ->
             let
@@ -348,8 +548,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats }
             in
-            ( { model | mats = newMats }, Cmd.none )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         ToggleMatCardEdit mat ->
             let
@@ -367,8 +571,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats }
             in
-            ( { model | mats = newMats }, Cmd.none )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         ToggleMatNameEdit mat ->
             let
@@ -386,8 +594,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats }
             in
-            ( { model | mats = newMats }, focusMatNameInput mat.id )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         AddDefaultCards mat ->
             let
@@ -405,8 +617,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat { mat | deck = newDeck } model.mats
+
+                newModel : Model
+                newModel =
+                    { model | nonce = newNonce, mats = newMats }
             in
-            ( { model | nonce = newNonce, mats = newMats }, Cmd.none )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         RemoveAllCards mat ->
             let
@@ -428,8 +644,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats }
             in
-            ( { model | mats = newMats }, Cmd.none )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         HandleMatNameInput mat name ->
             let
@@ -440,8 +660,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats }
             in
-            ( { model | mats = newMats }, sendToLocalStorage <| encodeModel model )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         HandleCustomCardInput mat text ->
             let
@@ -452,8 +676,12 @@ update msg model =
                 newMats : List Mat
                 newMats =
                     replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats }
             in
-            ( { model | mats = newMats }, Cmd.none )
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
 
 
