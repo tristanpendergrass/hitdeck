@@ -410,9 +410,8 @@ update msg model =
             let
                 cardsToShuffle : List Card
                 cardsToShuffle =
-                    [ mat.deck.cards, mat.discard.cards ]
+                    [ mat.deck.cards, List.filter cardShouldReshuffle mat.discard.cards ]
                         |> List.concat
-                        |> List.filter cardShouldReshuffle
 
                 ( shuffledCards, newSeed ) =
                     Random.step (shuffle cardsToShuffle) model.seed
