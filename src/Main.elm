@@ -838,6 +838,42 @@ focusMatNameInput id =
     Task.attempt (\_ -> NoOp) (Browser.Dom.focus <| getMatId id)
 
 
+groupCards : List Card -> List (List Card)
+groupCards cards =
+    let
+        cardSorter : Card -> Card -> Order
+        cardSorter left right =
+            case ( left, right ) of
+                ( StandardCard _, CustomCard _ ) ->
+                    LT
+
+                ( CustomCard _, StandardCard _ ) ->
+                    GT
+
+                ( StandardCard leftData, StandardCard rightData ) ->
+                    compare (labelForCardType leftData.cardType) (labelForCardType rightData.cardType)
+
+                ( CustomCard leftData, CustomCard rightData ) ->
+                    compare leftData.description rightData.description
+
+        sortedCardGrouper : Card -> List (List Card) -> List (List Card)
+        sortedCardGrouper card accumulator = case accumulator of
+            [] -> [[card]]
+            [one, ] -> case one of
+        
+        
+    in
+    cards
+        |> List.sortWith cardSorter
+        |> List.foldr sortedCardGrouper []
+   
+
+
+renderCardGroup : Mat -> List Card -> Html Msg
+renderCardGroup mat cardGroup =
+    div [] [ text "card group" ]
+
+
 renderMat : Mat -> Html Msg
 renderMat mat =
     div [ class "mat" ]
@@ -888,7 +924,11 @@ renderMat mat =
                         , text "Draw"
                         ]
                     ]
-                , ul [] (List.map (renderCard mat) mat.deck.cards)
+                , ul []
+                    (mat.deck.cards
+                        |> groupCards
+                        |> List.map (renderCardGroup mat)
+                    )
                 ]
             , div [ class "discard-pane" ]
                 [ div [ class "pane-header" ]
