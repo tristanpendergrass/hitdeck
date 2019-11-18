@@ -838,40 +838,55 @@ focusMatNameInput id =
     Task.attempt (\_ -> NoOp) (Browser.Dom.focus <| getMatId id)
 
 
-groupCards : List Card -> List (List Card)
+type alias CardGroup =
+    ( Card, List Card )
+
+
+groupCards : List Card -> List CardGroup
 groupCards cards =
     let
-        cardSorter : Card -> Card -> Order
-        cardSorter left right =
-            case ( left, right ) of
-                ( StandardCard _, CustomCard _ ) ->
-                    LT
+        insertCardOrCreateGroup : Card -> List CardGroup -> List CardGroup
+        insertCardOrCreateGroup card groups =
+            let
+                ( cardFound, updatedGroups ) =
+                    List.foldr
+                        (\group accumulator ->
+                            case ( card, Tuple.first group ) of
+                                ( StandardCard cardData, StandardCard groupCardData ) ->
+                                    if cardData.cardType == groupCardData.cardType then
+                                        ( True, ( Tuple.first group, card :: Tuple.second group ) :: Tuple.second accumulator )
 
-                ( CustomCard _, StandardCard _ ) ->
-                    GT
+                                    else
+                                        ( Tuple.first accumulator, group :: Tuple.second accumulator )
 
-                ( StandardCard leftData, StandardCard rightData ) ->
-                    compare (labelForCardType leftData.cardType) (labelForCardType rightData.cardType)
+                                ( CustomCard cardData, CustomCard groupCardData ) ->
+                                    if cardData.description == groupCardData.description then
+                                        ( True, ( Tuple.first group, card :: Tuple.second group ) :: Tuple.second accumulator )
 
-                ( CustomCard leftData, CustomCard rightData ) ->
-                    compare leftData.description rightData.description
+                                    else
+                                        ( Tuple.first accumulator, group :: Tuple.second accumulator )
 
-        sortedCardGrouper : Card -> List (List Card) -> List (List Card)
-        sortedCardGrouper card accumulator = case accumulator of
-            [] -> [[card]]
-            [one, ] -> case one of
-        
-        
+                                _ ->
+                                    ( Tuple.first accumulator, group :: Tuple.second accumulator )
+                        )
+                        ( False, [] )
+                        groups
+            in
+            if cardFound then
+                updatedGroups
+
+            else
+                ( card, [ card ] ) :: groups
     in
-    cards
-        |> List.sortWith cardSorter
-        |> List.foldr sortedCardGrouper []
-   
+    List.foldl insertCardOrCreateGroup [] cards
 
 
-renderCardGroup : Mat -> List Card -> Html Msg
+renderCardGroup : Mat -> CardGroup -> Html Msg
 renderCardGroup mat cardGroup =
-    div [] [ text "card group" ]
+    div []
+        [ renderCard mat (Tuple.first cardGroup)
+        , div [] [ text <| String.fromInt <| List.length <| Tuple.second cardGroup ]
+        ]
 
 
 renderMat : Mat -> Html Msg
