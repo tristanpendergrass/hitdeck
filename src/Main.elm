@@ -879,7 +879,7 @@ renderCardGroup mat ( card, cardGroup ) =
             ]
             [ text "-" ]
         , div
-            [ class "card-group-number" ]
+            [ class "card-group-number", classList [ ( "invisible", List.length cardGroup == 1 ) ] ]
             [ FeatherIcons.x
                 |> FeatherIcons.withSize 12
                 |> FeatherIcons.toHtml []
