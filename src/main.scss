@@ -123,3 +123,25 @@ button.warn {
     margin: auto;
   }
 }
+
+.card-group-container {
+  display: inline-block;
+  position: relative;
+
+  .card-group-number {
+    $group-number-size: 32px;
+
+    display: inline-block;
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    width: $group-number-size;
+    height: $group-number-size;
+    border-radius: $group-number-size;
+    background-color: white;
+    border: 2px solid black;
+    font-size: $group-number-size * (5/9);
+    line-height: $group-number-size;
+    text-align: center;
+  }
+}

@@ -888,10 +888,16 @@ groupCards cards =
 
 
 renderCardGroup : Mat -> CardGroup -> Html Msg
-renderCardGroup mat cardGroup =
-    div []
-        [ renderCard mat (Tuple.first cardGroup)
-        , div [] [ text <| String.fromInt <| List.length <| Tuple.second cardGroup ]
+renderCardGroup mat ( card, cardGroup ) =
+    div [ class "card-group-container" ]
+        [ renderCard mat card
+        , div
+            [ class "card-group-number" ]
+            [ FeatherIcons.x
+                |> FeatherIcons.withSize 12
+                |> FeatherIcons.toHtml []
+            , text <| String.fromInt (List.length cardGroup)
+            ]
         ]
 
 
