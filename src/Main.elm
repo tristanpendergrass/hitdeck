@@ -848,37 +848,43 @@ groupCards cards =
         insertCardOrCreateGroup : Card -> List CardGroup -> List CardGroup
         insertCardOrCreateGroup card groups =
             let
-                ( cardFound, updatedGroups ) =
+                ( cardWasFound, updatedGroups ) =
                     List.foldr
-                        (\group accumulator ->
+                        (\group ( cardIsFound, currentGroups ) ->
+                            let
+                                cardNotFoundResult =
+                                    ( cardIsFound, group :: currentGroups )
+                            in
                             case ( card, Tuple.first group ) of
                                 ( StandardCard cardData, StandardCard groupCardData ) ->
                                     if cardData.cardType == groupCardData.cardType then
-                                        ( True, ( Tuple.first group, card :: Tuple.second group ) :: Tuple.second accumulator )
+                                        ( True, ( Tuple.first group, card :: Tuple.second group ) :: currentGroups )
 
                                     else
-                                        ( Tuple.first accumulator, group :: Tuple.second accumulator )
+                                        cardNotFoundResult
 
                                 ( CustomCard cardData, CustomCard groupCardData ) ->
                                     if cardData.description == groupCardData.description then
-                                        ( True, ( Tuple.first group, card :: Tuple.second group ) :: Tuple.second accumulator )
+                                        ( True, ( Tuple.first group, card :: Tuple.second group ) :: currentGroups )
 
                                     else
-                                        ( Tuple.first accumulator, group :: Tuple.second accumulator )
+                                        cardNotFoundResult
 
                                 _ ->
-                                    ( Tuple.first accumulator, group :: Tuple.second accumulator )
+                                    cardNotFoundResult
                         )
                         ( False, [] )
                         groups
             in
-            if cardFound then
+            if cardWasFound then
                 updatedGroups
 
             else
                 ( card, [ card ] ) :: groups
     in
-    List.foldl insertCardOrCreateGroup [] cards
+    cards
+        |> List.foldl insertCardOrCreateGroup []
+        |> List.sortBy (Tuple.second >> List.length >> (*) -1)
 
 
 renderCardGroup : Mat -> CardGroup -> Html Msg
