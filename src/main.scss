@@ -114,14 +114,6 @@ button.warn {
     }
   }
 
-  .remove-button {
-    $remove-button-width: 20px;
-
-    display: block;
-    width: $remove-button-width;
-    text-align: center;
-    margin: auto;
-  }
 }
 
 .card-group-container {
@@ -143,5 +135,44 @@ button.warn {
     font-size: $group-number-size * (5/9);
     line-height: $group-number-size;
     text-align: center;
+  }
+
+  .remove-button {
+    $remove-button-width: 20px;
+
+    display: block;
+    width: $remove-button-width;
+    text-align: center;
+    margin: auto;
+  }
+
+  .card-group-cards {
+    $top-position: 10px;
+    height: 120px;
+
+    .card-container:nth-child(2) {
+      position: absolute;
+      top: $top-position;
+      left: 0;
+      z-index: -1;
+    }
+    .card-container:nth-child(3) {
+      position: absolute;
+      top: $top-position * 2;
+      left: 0;
+      z-index: -2;
+    }
+    .card-container:nth-child(4) {
+      position: absolute;
+      top: $top-position * 3;
+      left: 0;
+      z-index: -3;
+    }
+    .card-container:nth-child(5) {
+      position: absolute;
+      top: $top-position * 4;
+      left: 0;
+      z-index: -4;
+    }
   }
 }

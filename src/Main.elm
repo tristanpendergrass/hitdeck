@@ -782,17 +782,9 @@ cardTypeClass card =
                     "normal"
 
 
-renderCard : Mat -> Card -> Html Msg
-renderCard mat card =
+renderCard : Card -> Html Msg
+renderCard card =
     let
-        removeButton : Html Msg
-        removeButton =
-            button
-                [ onClick (RemoveCard mat.deck mat card)
-                , classList [ ( "remove-button", True ), ( "invisible", mat.cardEditState /= Editing ) ]
-                ]
-                [ text "-" ]
-
         displayCard : Html Msg
         displayCard =
             case card of
@@ -806,9 +798,7 @@ renderCard mat card =
                     div [ class "card custom" ] [ text description ]
     in
     li [ class "card-container" ]
-        [ displayCard
-        , removeButton
-        ]
+        [ displayCard ]
 
 
 renderAddCustomCard : Mat -> Html Msg
@@ -889,8 +879,24 @@ groupCards cards =
 
 renderCardGroup : Mat -> CardGroup -> Html Msg
 renderCardGroup mat ( card, cardGroup ) =
+    let
+        shownCards : Int
+        shownCards =
+            min
+                5
+                (List.length cardGroup)
+    in
     div [ class "card-group-container" ]
-        [ renderCard mat card
+        [ div [ class "card-group-cards" ]
+            (card
+                |> List.repeat shownCards
+                |> List.map renderCard
+            )
+        , button
+            [ onClick (RemoveCard mat.deck mat card)
+            , classList [ ( "remove-button", True ), ( "invisible", mat.cardEditState /= Editing ) ]
+            ]
+            [ text "-" ]
         , div
             [ class "card-group-number" ]
             [ FeatherIcons.x
@@ -967,7 +973,7 @@ renderMat mat =
                         , text "Reshuffle"
                         ]
                     ]
-                , ul [] (List.map (renderCard mat) mat.discard.cards)
+                , ul [] (List.map renderCard mat.discard.cards)
                 ]
             ]
         ]
