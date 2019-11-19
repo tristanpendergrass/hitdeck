@@ -914,7 +914,7 @@ renderMat mat =
             )
         , div [ class "mat-container" ]
             [ div [ class "buttons-pane" ]
-                [ div [] [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle EditingEditState" ] ]
+                [ div [] [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle Editing" ] ]
                 , renderAddCard mat Zero
                 , renderAddCard mat One
                 , renderAddCard mat MinusOne
