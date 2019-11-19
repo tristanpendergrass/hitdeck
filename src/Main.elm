@@ -349,7 +349,7 @@ encodeModel model =
                 , ( "deck", encodePile mat.deck )
                 , ( "discard", encodePile mat.discard )
                 , ( "cardEditState", encodeEditState mat.cardEditState )
-                , ( "nameEditState", encodeEditState mat.nameEditState )
+                , ( "nameEditState", encodeEditState Default )
                 , ( "name", E.string mat.name )
                 , ( "customCardText", E.string mat.customCardText )
                 ]
@@ -598,7 +598,12 @@ update msg model =
                 newModel =
                     { model | mats = newMats }
             in
-            ( newModel, sendToLocalStorage <| encodeModel newModel )
+            ( newModel
+            , Cmd.batch
+                [ sendToLocalStorage <| encodeModel newModel
+                , focusMatNameInput mat.id
+                ]
+            )
 
         AddDefaultCards mat ->
             let
