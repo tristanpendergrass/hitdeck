@@ -89,8 +89,8 @@ type alias Pile =
 
 
 type EditState
-    = Default
-    | Editing
+    = DefaultEditState
+    | EditingEditState
 
 
 type alias Mat =
@@ -147,8 +147,8 @@ defaultMat initialName =
     { id = 0
     , deck = { id = 50, cards = defaultCards }
     , discard = { id = 51, cards = [] }
-    , cardEditState = Default
-    , nameEditState = Default
+    , cardEditState = DefaultEditState
+    , nameEditState = DefaultEditState
     , name = initialName
     , customCardText = ""
     }
@@ -235,10 +235,10 @@ init localStorageData =
             D.map
                 (\editState ->
                     if editState == "Editing" then
-                        Editing
+                        EditingEditState
 
                     else
-                        Default
+                        DefaultEditState
                 )
                 D.string
 
@@ -336,10 +336,10 @@ encodeModel model =
         encodeEditState : EditState -> E.Value
         encodeEditState editState =
             case editState of
-                Default ->
+                DefaultEditState ->
                     E.string "Default"
 
-                Editing ->
+                EditingEditState ->
                     E.string "Editing"
 
         encodeMat : Mat -> E.Value
@@ -349,7 +349,7 @@ encodeModel model =
                 , ( "deck", encodePile mat.deck )
                 , ( "discard", encodePile mat.discard )
                 , ( "cardEditState", encodeEditState mat.cardEditState )
-                , ( "nameEditState", encodeEditState Default )
+                , ( "nameEditState", encodeEditState DefaultEditState )
                 , ( "name", E.string mat.name )
                 , ( "customCardText", E.string mat.customCardText )
                 ]
@@ -394,8 +394,8 @@ update msg model =
                     { id = model.nonce
                     , deck = { id = model.nonce + 1, cards = [] }
                     , discard = { id = model.nonce + 2, cards = [] }
-                    , cardEditState = Default
-                    , nameEditState = Default
+                    , cardEditState = DefaultEditState
+                    , nameEditState = DefaultEditState
                     , name = "Mat " ++ String.fromInt (List.length model.mats + 1)
                     , customCardText = ""
                     }
@@ -560,11 +560,11 @@ update msg model =
                 newMat =
                     { mat
                         | cardEditState =
-                            if mat.cardEditState == Default then
-                                Editing
+                            if mat.cardEditState == DefaultEditState then
+                                EditingEditState
 
                             else
-                                Default
+                                DefaultEditState
                     }
 
                 newMats : List Mat
@@ -583,11 +583,11 @@ update msg model =
                 newMat =
                     { mat
                         | nameEditState =
-                            if mat.nameEditState == Default then
-                                Editing
+                            if mat.nameEditState == DefaultEditState then
+                                EditingEditState
 
                             else
-                                Default
+                                DefaultEditState
                     }
 
                 newMats : List Mat
@@ -763,30 +763,6 @@ srcForCardType cardType =
             "attack_modifiers/curse.png"
 
 
-cardTypeClass : Card -> String
-cardTypeClass card =
-    case card of
-        CustomCard _ ->
-            "custom"
-
-        StandardCard { cardType } ->
-            case cardType of
-                Crit ->
-                    "crit"
-
-                Null ->
-                    "null"
-
-                Blessing ->
-                    "blessing"
-
-                Curse ->
-                    "curse"
-
-                _ ->
-                    "normal"
-
-
 renderCard : Card -> Html Msg
 renderCard card =
     let
@@ -809,7 +785,7 @@ renderCard card =
 renderAddCustomCard : Mat -> Html Msg
 renderAddCustomCard mat =
     span
-        [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ]
+        [ classList [ ( "invisible", mat.cardEditState /= EditingEditState ) ] ]
         [ button
             [ onClick (AddCustomCard mat) ]
             [ text "+Custom Card" ]
@@ -822,7 +798,7 @@ renderAddCard mat cardType =
     div []
         [ button
             [ onClick (AddStandardCard mat cardType)
-            , classList [ ( "invisible", mat.cardEditState /= Editing ) ]
+            , classList [ ( "invisible", mat.cardEditState /= EditingEditState ) ]
             ]
             [ text ("Add " ++ labelForCardType cardType) ]
         ]
@@ -899,7 +875,7 @@ renderCardGroup mat ( card, cardGroup ) =
             )
         , button
             [ onClick (RemoveCard mat.deck mat card)
-            , classList [ ( "remove-button", True ), ( "invisible", mat.cardEditState /= Editing ) ]
+            , classList [ ( "remove-button", True ), ( "invisible", mat.cardEditState /= EditingEditState ) ]
             ]
             [ text "-" ]
         , div
@@ -916,7 +892,7 @@ renderMat : Mat -> Html Msg
 renderMat mat =
     div [ class "mat" ]
         [ div [ class "mat-name" ]
-            (if mat.nameEditState == Editing then
+            (if mat.nameEditState == EditingEditState then
                 [ input
                     [ value mat.name
                     , onInput (HandleMatNameInput mat)
@@ -938,7 +914,7 @@ renderMat mat =
             )
         , div [ class "mat-container" ]
             [ div [ class "buttons-pane" ]
-                [ div [] [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle Editing" ] ]
+                [ div [] [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle EditingEditState" ] ]
                 , renderAddCard mat Zero
                 , renderAddCard mat One
                 , renderAddCard mat MinusOne
@@ -949,8 +925,8 @@ renderMat mat =
                 , renderAddCard mat Blessing
                 , renderAddCard mat Curse
                 , renderAddCustomCard mat
-                , div [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ] [ button [ onClick (AddDefaultCards mat) ] [ text "Add Default Cards" ] ]
-                , div [ classList [ ( "invisible", mat.cardEditState /= Editing ) ] ] [ button [ class "warn", onClick (RemoveAllCards mat) ] [ text "Remove All Cards" ] ]
+                , div [ classList [ ( "invisible", mat.cardEditState /= EditingEditState ) ] ] [ button [ onClick (AddDefaultCards mat) ] [ text "Add DefaultEditState Cards" ] ]
+                , div [ classList [ ( "invisible", mat.cardEditState /= EditingEditState ) ] ] [ button [ class "warn", onClick (RemoveAllCards mat) ] [ text "Remove All Cards" ] ]
                 ]
             , div [ class "deck-pane" ]
                 [ div [ class "pane-header" ]
