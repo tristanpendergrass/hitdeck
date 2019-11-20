@@ -1,3 +1,6 @@
+$card-width: 145px;
+$card-height: $card-width / 1.4;
+
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -25,20 +28,21 @@ button.warn {
   color: white;
 }
 
-.mat-container {
+.pane-container {
   display: flex;
+  flex-direction: row;
 
   .buttons-pane,
   .deck-pane,
   .discard-pane {
+    display: flex;
+    flex-direction: column;
     border: 1px solid black;
-    height: 500px;
-    overflow: auto;
+    height: 400px;
   }
 
-  .deck-pane,
-  .discard-pane {
-    flex-basis: 50%;
+  .buttons-pane {
+    width: 114px;
   }
 
   .pane-header {
@@ -49,7 +53,7 @@ button.warn {
     padding: 10px;
 
     h2 {
-      margin: 0 30px 0 0;
+      margin: 0 15px 0 0;
       display: inline-block;
       font-size: 30px;
     }
@@ -65,15 +69,13 @@ button.warn {
       }
     }
   }
+
+
 }
 
 .card-container {
-  $card-width: 100px;
-  $card-height: $card-width / 1.4;
-
-  display: inline-block;
+  display: block;
   width: $card-width;
-  margin-right: 10px;
 
   .standard-card-container {
     position: relative;
@@ -116,63 +118,91 @@ button.warn {
 
 }
 
-.card-group-container {
-  display: inline-block;
-  position: relative;
+.deck-pane-cards, .discard-pane-cards {
+  padding: 10px;
+}
 
-  .card-group-number {
-    $group-number-size: 32px;
+.deck-pane {
+  flex-grow: 1;
 
-    display: inline-block;
-    position: absolute;
-    left: 5px;
-    top: 5px;
-    width: $group-number-size;
-    height: $group-number-size;
-    border-radius: $group-number-size;
-    background-color: white;
-    border: 2px solid black;
-    font-size: $group-number-size * (5/9);
-    line-height: $group-number-size;
-    text-align: center;
+  .deck-pane-cards {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    overflow-y: scroll;
+    box-sizing: border-box;
+
+    .card-group-container {
+      position: relative;
+      margin-right: 10px;
+
+      .card-group-number {
+        $group-number-size: 32px;
+
+        display: inline-block;
+        position: absolute;
+        left: 5px;
+        top: 5px;
+        width: $group-number-size;
+        height: $group-number-size;
+        border-radius: $group-number-size;
+        background-color: white;
+        border: 2px solid black;
+        font-size: $group-number-size * (5/9);
+        line-height: $group-number-size;
+        text-align: center;
+      }
+
+      .remove-button {
+        $remove-button-width: 20px;
+
+        display: block;
+        width: $remove-button-width;
+        text-align: center;
+        margin: auto;
+      }
+
+      .card-group-cards {
+        $top-position: 10px;
+        height: $card-height + 4 * $top-position;
+
+        .card-container:nth-child(2) {
+          position: absolute;
+          top: $top-position;
+          left: 0;
+          z-index: -1;
+        }
+        .card-container:nth-child(3) {
+          position: absolute;
+          top: $top-position * 2;
+          left: 0;
+          z-index: -2;
+        }
+        .card-container:nth-child(4) {
+          position: absolute;
+          top: $top-position * 3;
+          left: 0;
+          z-index: -3;
+        }
+        .card-container:nth-child(5) {
+          position: absolute;
+          top: $top-position * 4;
+          left: 0;
+          z-index: -4;
+        }
+      }
+    }
   }
+}
 
-  .remove-button {
-    $remove-button-width: 20px;
+.discard-pane {
+  width: 250px;
 
-    display: block;
-    width: $remove-button-width;
-    text-align: center;
-    margin: auto;
-  }
-
-  .card-group-cards {
-    $top-position: 10px;
-    height: 120px;
-
-    .card-container:nth-child(2) {
-      position: absolute;
-      top: $top-position;
-      left: 0;
-      z-index: -1;
-    }
-    .card-container:nth-child(3) {
-      position: absolute;
-      top: $top-position * 2;
-      left: 0;
-      z-index: -2;
-    }
-    .card-container:nth-child(4) {
-      position: absolute;
-      top: $top-position * 3;
-      left: 0;
-      z-index: -3;
-    }
-    .card-container:nth-child(5) {
-      position: absolute;
-      top: $top-position * 4;
-      left: 0;
-      z-index: -4;
-    }
+  .discard-pane-cards {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    overflow-y: scroll;
   }
 }

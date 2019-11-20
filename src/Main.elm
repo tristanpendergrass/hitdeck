@@ -778,13 +778,13 @@ renderCard card =
                 CustomCard { description } ->
                     div [ class "card custom" ] [ text description ]
     in
-    li [ class "card-container" ]
+    div [ class "card-container" ]
         [ displayCard ]
 
 
 renderAddCustomCard : Mat -> Html Msg
 renderAddCustomCard mat =
-    span
+    div
         [ classList [ ( "invisible", mat.cardEditState /= EditingEditState ) ] ]
         [ button
             [ onClick (AddCustomCard mat) ]
@@ -912,7 +912,7 @@ renderMat mat =
                     ]
                 ]
             )
-        , div [ class "mat-container" ]
+        , div [ class "pane-container" ]
             [ div [ class "buttons-pane" ]
                 [ div [] [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle Editing" ] ]
                 , renderAddCard mat Zero
@@ -938,7 +938,7 @@ renderMat mat =
                         , text "Draw"
                         ]
                     ]
-                , ul []
+                , div [ class "deck-pane-cards" ]
                     (mat.deck.cards
                         |> groupCards
                         |> List.map (renderCardGroup mat)
@@ -954,7 +954,7 @@ renderMat mat =
                         , text "Reshuffle"
                         ]
                     ]
-                , ul [] (List.map renderCard mat.discard.cards)
+                , div [ class "discard-pane-cards" ] (List.map renderCard mat.discard.cards)
                 ]
             ]
         ]
