@@ -1030,16 +1030,16 @@ renderMat mat =
                             |> FeatherIcons.toHtml []
                         , text "Draw"
                         ]
+                    , div [ class "draw-warning", classList [ ( "invisible", showDrawWarning ) ] ]
+                        [ FeatherIcons.alertCircle
+                            |> FeatherIcons.withSize 20
+                            |> FeatherIcons.toHtml []
+                        ]
                     , button [ onClick (SortDeck mat), disabled (List.isEmpty mat.deck.cards) ]
                         [ FeatherIcons.barChart
                             |> FeatherIcons.withSize 16
                             |> FeatherIcons.toHtml []
                         , text "Sort"
-                        ]
-                    , div [ class "draw-warning", classList [ ( "invisible", showDrawWarning ) ] ]
-                        [ FeatherIcons.alertCircle
-                            |> FeatherIcons.withSize 20
-                            |> FeatherIcons.toHtml []
                         ]
                     ]
                 , div [ class "deck-pane-cards" ]
