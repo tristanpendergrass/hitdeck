@@ -28,6 +28,12 @@ button.warn {
   color: white;
 }
 
+.draw-warning {
+  color: red;
+  margin: 0 5px;
+  height: 20px;
+}
+
 .pane-container {
   display: flex;
   flex-direction: row;
@@ -39,10 +45,15 @@ button.warn {
     flex-direction: column;
     border: 1px solid black;
     height: 400px;
+    overflow-x: hidden;
   }
 
   .buttons-pane {
     width: 114px;
+
+    input {
+      width: 100px;
+    }
   }
 
   .pane-header {
@@ -74,8 +85,6 @@ button.warn {
       }
     }
   }
-
-
 }
 
 .card-container {
@@ -120,10 +129,10 @@ button.warn {
       background-color: lightpink;
     }
   }
-
 }
 
-.deck-pane-cards, .discard-pane-cards {
+.deck-pane-cards,
+.discard-pane-cards {
   padding: 10px;
 }
 
@@ -134,7 +143,7 @@ button.warn {
     display: flex;
     flex-wrap: wrap;
     width: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
     box-sizing: border-box;
 
     .card-group-container {

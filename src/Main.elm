@@ -967,6 +967,22 @@ renderDiscardCard mat card =
 
 renderMat : Mat -> Html Msg
 renderMat mat =
+    let
+        showDrawWarning : Bool
+        showDrawWarning =
+            not
+                (List.any
+                    (\card ->
+                        case card of
+                            StandardCard { cardType } ->
+                                cardType == Crit || cardType == Null
+
+                            CustomCard _ ->
+                                False
+                    )
+                    mat.discard.cards
+                )
+    in
     div [ class "mat" ]
         [ div [ class "mat-name" ]
             (if mat.nameEditState == EditingEditState then
@@ -1019,6 +1035,11 @@ renderMat mat =
                             |> FeatherIcons.withSize 16
                             |> FeatherIcons.toHtml []
                         , text "Sort"
+                        ]
+                    , div [ class "draw-warning", classList [ ( "invisible", showDrawWarning ) ] ]
+                        [ FeatherIcons.alertCircle
+                            |> FeatherIcons.withSize 20
+                            |> FeatherIcons.toHtml []
                         ]
                     ]
                 , div [ class "deck-pane-cards" ]
