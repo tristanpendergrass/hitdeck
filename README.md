@@ -1,4 +1,4 @@
-Demo at https://tristanpendergrass.com/hitdeck.
+Demo at https://www.tristanpendergrass.com/hitdeck.
 
 # Development
 
