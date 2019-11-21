@@ -367,6 +367,7 @@ type Msg
       -- mat operations
     | Reshuffle Mat
     | Draw Mat
+    | SortDeck Mat
     | AddStandardCard Mat CardType
     | AddCustomCard Mat
     | RemoveCard Pile Mat Card
@@ -485,6 +486,37 @@ update msg model =
                             { model | mats = newMats, seed = newSeed }
                     in
                     ( newModel, sendToLocalStorage <| encodeModel newModel )
+
+        SortDeck mat ->
+            let
+                oldDeck : Pile
+                oldDeck =
+                    mat.deck
+
+                newDeckCards : List Card
+                newDeckCards =
+                    mat.deck.cards
+                        |> groupCards
+                        |> List.sortBy (Tuple.second >> List.length >> (*) -1)
+                        |> List.foldl (\( _, group ) accumulator -> List.concat [ group, accumulator ]) []
+
+                newDeck : Pile
+                newDeck =
+                    { oldDeck | cards = newDeckCards }
+
+                newMat : Mat
+                newMat =
+                    { mat | deck = newDeck }
+
+                newMats : List Mat
+                newMats =
+                    replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats }
+            in
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
 
         AddStandardCard mat cardType ->
             let
@@ -935,6 +967,12 @@ renderMat mat =
                             |> FeatherIcons.withSize 16
                             |> FeatherIcons.toHtml []
                         , text "Draw"
+                        ]
+                    , button [ onClick (SortDeck mat), disabled (List.isEmpty mat.deck.cards) ]
+                        [ FeatherIcons.barChart
+                            |> FeatherIcons.withSize 16
+                            |> FeatherIcons.toHtml []
+                        , text "Sort"
                         ]
                     ]
                 , div [ class "deck-pane-cards" ]
