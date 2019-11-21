@@ -855,7 +855,6 @@ groupCards cards =
     in
     cards
         |> List.foldl insertCardOrCreateGroup []
-        |> List.sortBy (Tuple.second >> List.length >> (*) -1)
 
 
 renderCardGroup : Mat -> CardGroup -> Html Msg
