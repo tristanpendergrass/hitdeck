@@ -377,6 +377,7 @@ type Msg
     | RemoveAllCards Mat
     | HandleMatNameInput Mat String
     | HandleCustomCardInput Mat String
+    | ReshuffleCard Mat Card
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -719,6 +720,38 @@ update msg model =
             in
             ( newModel, sendToLocalStorage <| encodeModel newModel )
 
+        ReshuffleCard mat card ->
+            let
+                oldDeck : Pile
+                oldDeck =
+                    mat.deck
+
+                oldDiscard : Pile
+                oldDiscard =
+                    mat.discard
+
+                newDeck : Pile
+                newDeck =
+                    { oldDeck | cards = card :: oldDeck.cards }
+
+                newDiscard : Pile
+                newDiscard =
+                    { oldDiscard | cards = List.filter ((/=) card) oldDiscard.cards }
+
+                newMat : Mat
+                newMat =
+                    { mat | deck = newDeck, discard = newDiscard }
+
+                newMats : List Mat
+                newMats =
+                    replace mat newMat model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats }
+            in
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
+
 
 
 -- SUBSCRIPTIONS
@@ -919,6 +952,19 @@ renderCardGroup mat ( card, cardGroup ) =
         ]
 
 
+renderDiscardCard : Mat -> Card -> Html Msg
+renderDiscardCard mat card =
+    div [ class "discard-card-container" ]
+        [ renderCard card
+        , button
+            [ onClick (ReshuffleCard mat card)
+            , class "reshuffle-button"
+            , classList [ ( "invisible", mat.cardEditState /= EditingEditState ) ]
+            ]
+            [ text "-" ]
+        ]
+
+
 renderMat : Mat -> Html Msg
 renderMat mat =
     div [ class "mat" ]
@@ -991,7 +1037,7 @@ renderMat mat =
                         , text "Reshuffle"
                         ]
                     ]
-                , div [ class "discard-pane-cards" ] (List.map renderCard mat.discard.cards)
+                , div [ class "discard-pane-cards" ] (List.map (renderDiscardCard mat) mat.discard.cards)
                 ]
             ]
         ]
