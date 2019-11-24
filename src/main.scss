@@ -8,14 +8,23 @@ body {
   opacity: 0;
 }
 
-.mat-name {
-  font-size: 36px;
+.mat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-  input {
+  .mat-name {
     font-size: 36px;
+
+    input {
+      font-size: 36px;
+    }
+    button {
+      margin-left: 10px;
+    }
   }
-  button {
-    margin-left: 10px;
+  .delete-mat {
+    color: red;
   }
 }
 

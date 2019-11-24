@@ -378,6 +378,7 @@ type Msg
     | HandleMatNameInput Mat String
     | HandleCustomCardInput Mat String
     | ReshuffleCard Mat Card
+    | DeleteMat Mat
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -752,6 +753,18 @@ update msg model =
             in
             ( newModel, sendToLocalStorage <| encodeModel newModel )
 
+        DeleteMat mat ->
+            let
+                newMats : List Mat
+                newMats =
+                    List.filter ((/=) mat) model.mats
+
+                newModel : Model
+                newModel =
+                    { model | mats = newMats }
+            in
+            ( newModel, sendToLocalStorage <| encodeModel newModel )
+
 
 
 -- SUBSCRIPTIONS
@@ -984,27 +997,34 @@ renderMat mat =
                 )
     in
     div [ class "mat" ]
-        [ div [ class "mat-name" ]
-            (if mat.nameEditState == EditingEditState then
-                [ input
-                    [ value mat.name
-                    , onInput (HandleMatNameInput mat)
-                    , onBlur (ToggleMatNameEdit mat)
-                    , id (getMatId mat.id)
+        [ div [ class "mat-header" ]
+            [ div [ class "mat-name" ]
+                (if mat.nameEditState == EditingEditState then
+                    [ input
+                        [ value mat.name
+                        , onInput (HandleMatNameInput mat)
+                        , onBlur (ToggleMatNameEdit mat)
+                        , id (getMatId mat.id)
+                        ]
+                        []
                     ]
-                    []
-                ]
 
-             else
-                [ span [] [ text mat.name ]
-                , button
-                    [ onClick (ToggleMatNameEdit mat) ]
-                    [ FeatherIcons.edit
-                        |> FeatherIcons.withSize 24
-                        |> FeatherIcons.toHtml []
+                 else
+                    [ span [] [ text mat.name ]
+                    , button
+                        [ onClick (ToggleMatNameEdit mat) ]
+                        [ FeatherIcons.edit
+                            |> FeatherIcons.withSize 24
+                            |> FeatherIcons.toHtml []
+                        ]
                     ]
+                )
+            , button [ class "delete-mat", onClick (DeleteMat mat) ]
+                [ FeatherIcons.trash2
+                    |> FeatherIcons.withSize 24
+                    |> FeatherIcons.toHtml []
                 ]
-            )
+            ]
         , div [ class "pane-container" ]
             [ div [ class "buttons-pane" ]
                 [ div [] [ button [ onClick (ToggleMatCardEdit mat) ] [ text "Toggle Editing" ] ]
